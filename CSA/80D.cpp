@@ -1,8 +1,8 @@
 /*************************************************************************
-    > File Name: 80A.cpp
+    > File Name: 80D.cpp
     > Author: Roundgod
     > Mail: wcysai@foxmail.com 
-    > Created Time: 2018-05-23 23:00:31
+    > Created Time: 2018-05-25 01:30:43
  ************************************************************************/
 
 #include<bits/stdc++.h>
@@ -17,10 +17,6 @@ typedef pair<int,int> P;
 int n,k,a[MAXN];
 int main()
 {
-    for(int i=0;i<16;i++) scanf("%d",&a[i]);
-    int cnt=4;
-    for(int i=4;i<16;i++) if(a[i]+300>a[3]) cnt++; else break;
-    printf("%d\n",cnt);
-    return 0;
+  return 0;
 }
 
