@@ -14,33 +14,45 @@
 using namespace std;
 typedef long long ll;
 typedef pair<int,int> P;
-int n,m;
-int a[MAXN];
-bool connected[MAXN];
+int n,m,x,mask;
+bool vis[MAXN],sub[MAXN];
+void dfs(int type,int v)
+{
+    if(type==0)
+    {
+        vis[v]=false;
+        if(!sub[mask-v]) dfs(1,mask-v);
+    }
+    else
+    {
+        sub[v]=true;
+        if(vis[v]) dfs(0,v);
+        for(int i=0;i<n;i++)
+        {
+            int to=v&(mask-(1<<i));
+            if(!sub[to]) dfs(1,to);
+        }
+    }
+}
 int main()
 {
     scanf("%d%d",&n,&m);
-    for(int i=0;i<m;i++)
-        scanf("%d",&a[i]);
-    sort(a,a+m);
-    memset(connected,false,sizeof(connected));
-    int cnt=0;
+    mask=(1<<n)-1;
+    memset(vis,false,sizeof(vis));
+    memset(sub,false,sizeof(sub));
     for(int i=0;i<m;i++)
     {
-        int sup=max(0,(1<<n)-1-a[i]),sub=sup;
-        bool f=true;
-        do
+        scanf("%d",&x);
+        vis[x]=true;
+    }
+    int cnt=0;
+    for(int i=0;i<(1<<n);i++)
+    {
+        if(vis[i])
         {
-            //printf("%d\n",sub);
-            if(connected[sub]) 
-            {
-                f=false;
-                break;
-            }
-            sub=(sub-1)&sup;
-        }while(sub!=sup);
-        if(f) cnt++;
-        connected[a[i]]=true;
+            cnt++;
+            dfs(0,i);
+        }
     }
     printf("%d\n",cnt);
     return 0;
