@@ -114,6 +114,7 @@ int main()
     while(t--)
     {
         scanf("%d",&n);
+        memset(wson,0,sizeof(wson));
         for(int i=1;i<=n;i++)
         {
             G[i].clear();
