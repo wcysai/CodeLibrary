@@ -9,7 +9,7 @@ typedef long long ll;
 typedef pair<int,int> P;
 int prime[MAXN],phi[MAXN];
 bool is_prime[MAXN];
-void genphi(int n)
+void genphi(int n)  
 {
     int p=0;
     memset(phi,0,sizeof(phi));
@@ -18,7 +18,7 @@ void genphi(int n)
     phi[1]=1;
     for(int i=2;i<=n;i++)
     {
-        if(is_prime[i]) {prime[p++]=i; phi[i]=i-1;}
+        if(is_prime[i]) prime[p++]=i;
         for(int j=0;j<p;j++)
         {
             if(prime[j]*i>n) break;
