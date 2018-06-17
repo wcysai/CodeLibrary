@@ -18,6 +18,10 @@ typedef pair<int,double> P;
 int n,k,a[MAXN],b[MAXN];
 double dp[MAXN][MAXN][MAXN];
 P v[MAXN];
+void Max(double *x,double y)
+{
+    *x=max(*x,y);
+}
 bool cmp(P p,P q)
 {
     if(p.F!=q.F) return p.F>q.F;
@@ -33,31 +37,38 @@ bool C(double x)
             for(int k=0;k<=n;k++)
                 dp[i][j][k]=-INF;
     dp[0][0][0]=0;
-    for(int i=1;i<=n;i++)
+    for(int i=0;i<n;i++)
     {
-        if(i==1||v[i].F!=v[i-1].F)
-        {
-            for(int j=0;j<=i-1;j++)
-                for(int k=0;j+k<=i-1;k++)
+        for(int j=0;j<=i;j++)
+            for(int k=0;j+k<=i;k++)
+            {
+                if(dp[i][j][k]==-INF) continue;
+                if(i==0||v[i].F!=v[i+1].F)
                 {
-                    dp[i][j][k]=dp[]
+                    Max(&dp[i+1][j+k][1],dp[i][j][k]+v[i+1].S);
+                    if(j+k>0) Max(&dp[i+1][j+k-1][0],dp[i][j][k]);
                 }
-        }
+                else
+                {
+                    Max(&dp[i+1][j][k+1],dp[i][j][k]+v[i+1].S);
+                    if(j!=0) Max(&dp[i+1][j-1][k],dp[i][j][k]); 
+                }
+            }
     }
     for(int i=0;i<=n;i++)
-        if(dp[n][i]>=0) return true;
+        for(int j=0;i+j<=n;j++)
+            if(dp[n][i][j]>=0) return true;
     return false;
 }
 int main()
 {
     scanf("%d",&n);
-    for(int i=0;i<n;i++)
+    for(int i=1;i<=n;i++)
         scanf("%d",&a[i]);
-    for(int i=0;i<n;i++)
+    for(int i=1;i<=n;i++)
         scanf("%d",&b[i]);
-    double l=0,r=2e8;
-    if(C(1)) puts("Yes");
-    for(int i=0;i<500;i++)
+    double l=0,r=2e9;
+    for(int i=0;i<200;i++)
     {
         double mid=(l+r)/2;
         if(C(mid)) r=mid; else l=mid;
