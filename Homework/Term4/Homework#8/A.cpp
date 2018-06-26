@@ -2,21 +2,11 @@
     > File Name: A.cpp
     > Author: Roundgod
     > Mail: wcysai@foxmail.com 
-    > Created Time: 2018-06-07 09:46:43
+    > Created Time: 2018-06-24 23:42:59
  ************************************************************************/
 
 #pragma GCC optimize(3)
-#include<cstdio>
-#include<cmath>
-#include<iostream>
-#include<cstdlib>
-#include<cstring>
-#include<algorithm>
-#include<map>
-#include<set>
-#include<vector>
-#include<queue>
-#include<stack>
+#include<bits/stdc++.h>
 #define MAXN 100005
 #define INF 1000000000
 #define MOD 1000000007
@@ -25,61 +15,107 @@
 using namespace std;
 typedef long long ll;
 typedef pair<int,int> P;
-int t,n;
-int _mod(int x,int m)
+int query;
+int V,E;
+string str;
+P a[MAXN];
+int strtoi(string x)
 {
-    return x>=m?x-m:x;
-}
-int mul_mod(int a,int i,int m)
-{
-    if(i==0) return 0;
     int s=0;
-    while(i)
-    {
-        if(i&1) s=_mod(s+a,m);
-        a=_mod(a+a,m);
-        i>>=1;
-    }
+    for(int i=x.size()-1;i>=0;i--)
+        s=s*10+x[i]-'0';
     return s;
 }
-int pow_mod(int a,int i,int n)
+int p[MAXN],r[MAXN];
+bool used[MAXN];
+void init(int n)
 {
-    if(i==0) return 1%n;
-    int temp=pow_mod(a,i>>1,n);
-      temp=mul_mod(temp,temp)%n;
-    if(i&1) temp=_mod(temp*a)%n;
-    return temp;
-}
-bool test(int n,int a,int d)
-{
-    if(n==2) return true;
-    if(n==a) return true;
-    if((n&1)==0) return false;
-    while(!(d&1)) d=d>>1;
-    int t=pow_mod(a,d,n);
-    while((d!=n-1)&&(t!=1)&&(t!=n-1))
+    for(int i=0;i<n;i++)
     {
-        t=(long long)t*t%n;
-        d=d<<1;
+        p[i]=i;
+        r[i]=0;
     }
-    return(t==n-1||(d&1)==1);
 }
-bool isPrime(int n)
+int find(int x)
 {
-    if(n<2) return false;
-    int a[]={2,3,5,7,61};
-    for(int i=0;i<=4;++i) if(!test(n,a[i],n-1)) return false;
-    return true;
+    if(p[x]==x) return x;
+    else return p[x]=find(p[x]);
+}
+void unite(int x,int y)
+{
+    x=find(x);
+    y=find(y);
+    if(x==y) return;
+    if(r[x]<r[y]) p[x]=y;
+    else
+    {
+        p[y]=x;
+        if(r[x]==r[y]) r[x]++;
+    }
+}
+bool same(int x,int y)
+{
+    return find(x)==find(y);
 }
 int main()
 {
-    scanf("%d",&t);
-    while(t--)
+    scanf("%d",&query);
+    while(query--)
     {
-        scanf("%d",&n);
-        if(isPrime(n)) puts("Yes"); else puts("No");
+        scanf("%d%d",&V,&E);
+        for(int i=0;i<E;i++)
+        {
+            cin>>str;
+            int id=-1;
+            for(int j=0;j<(int)str.size();j++)
+            {
+                if(str[j]==':')
+                {
+                    id=j;
+                    break;
+                }
+            }
+            int x=strtoi(str.substr(0,id)),y=strtoi(str.substr(id+1,str.size()-id-1));
+            a[i].F=x;a[i].S=y;
+            //printf("%d %d\n",x,y);
+        }
+        init(V);
+        int t=E,round=1;
+        while(true)
+        {
+            memset(used,false,sizeof(used));
+            int cnt=0;
+            for(int i=0;i<t;i++)
+            {
+                int v=find(a[i].F);
+                if(!used[v]) {cnt++; used[v]=true;}
+                int u=find(a[i].S);
+                if(!used[u]) {cnt++; used[u]=true;}
+            }
+            if(cnt<=2) break;
+            int seed=round*32761%t;
+            unite(a[seed].F,a[seed].S);
+            int now=0;
+            while(now<t)
+            {
+                if(same(a[now].F,a[now].S))
+                {
+                     for(int i=now+1;i<t;i++)
+                        a[i-1]=a[i];
+                     t--;
+                }
+                else now++;
+            }
+            round++;
+        }
+        for(int i=0;i<t;i++)
+        {
+            if(a[i].F>a[i].S) swap(a[i].F,a[i].S);
+            printf("%d:%d",a[i].F,a[i].S);
+            if(i!=t-1) printf(" ");
+        }
+        puts("");
     }
     return 0;
 }
-
 
