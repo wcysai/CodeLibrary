@@ -1,41 +1,37 @@
+/*************************************************************************
+    > File Name: 25D.cpp
+    > Author: Roundgod
+    > Mail: wcysai@foxmail.com 
+    > Created Time: 2018-07-09 15:52:51
+ ************************************************************************/
+
+#pragma GCC optimize(3)
 #include<bits/stdc++.h>
-#define MAXN 100000
+#define MAXN 100005
+#define INF 1000000000
+#define MOD 1000000007
+#define F first
+#define S second
 using namespace std;
-int n;
-int h[MAXN];
-int L[MAXN],R[MAXN];
-int st[MAXN];
-void solve()
-{
-	int t=0;
-	for(int i=0;i<n;i++)
-	{
-		while(t>0&&h[st[t-1]]<=h[i]) t--;
-		L[i]=t==0?0:(st[t-1]+1);
-		st[t++]=i;
-	}
-	t=0;
-	for(int i=n-1;i>=0;i--)
-	{
-		while(t>0&&h[st[t-1]]<=h[i]) t--;
-		R[i]=t==0?n+1:(st[t-1]+1);
-		st[t++]=i;
-	}
-	int ans=0;
-	for(int i=0;i<n;i++)
-        printf("%d %d\n",L[i],R[i]);
-	for(int i=0;i<n;i++)
-    {
-        if(L[i]!=0) ans=max(ans,i+1-L[i]);
-        if(R[i]!=n+1) ans=max(ans,R[i]-i);
-    }
-    printf("%d\n",ans);
-}
+typedef long long ll;
+typedef pair<int,int> P;
+int n,k,a[MAXN];
 int main()
 {
     scanf("%d",&n);
-    for(int i=0;i<n;i++)
-        scanf("%d",&h[i]);
-    solve();
+    for(int i=1;i<=n;i++)
+    {
+        int x;
+        scanf("%d",&x);
+        a[x]=i;
+    }
+    int l=n+1,r=0,cnt=0,ans=0;
+    for(int i=n;i>=1;i--,cnt++)
+    {
+        l=min(l,a[i]);r=max(r,a[i]);
+        ans=max(ans,r-l+min(2,n)-cnt);
+    }
+    printf("%d\n",ans);
     return 0;
 }
+
