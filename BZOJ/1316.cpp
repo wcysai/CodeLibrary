@@ -1,12 +1,5 @@
-#include<cstdio>
-#include<cmath>
-#include<iostream>
-#include<algorithm>
-#include<cstdlib>
-#include<cstring>
-#include<vector>
-#include<limits.h>
-#define MAXN 10005
+#include<bits/stdc++.h>
+#define MAXN 20005
 #define INF 1000000000
 #define MOD 1000000007
 #define F first
@@ -15,11 +8,11 @@ using namespace std;
 typedef long long ll;
 typedef pair<int,int> P;
 struct edge{int to,cost;};
-int N,K;
+int N,K,Q;
 vector<edge> G[MAXN];
 bool centroid[MAXN];
-int sz[MAXN],deep[MAXN],d[MAXN];
-int ans;
+int sz[MAXN],deep[MAXN],d[MAXN],ans[MAXN];
+int query[MAXN];
 P getroot(int v,int p,int t)//search_centroid
 {
     P res=P(INT_MAX,-1);
@@ -48,59 +41,62 @@ void getdeep(int v,int p)//enumerate path
         getdeep(to,v);
     }
 }
-int cal(int v,int cost)
+void cal(int v,int cost,int sgn)
 {
     d[v]=cost;deep[0]=0;
     getdeep(v,0);
     sort(deep+1,deep+deep[0]+1);
-    int l=1,r=deep[0],sum=0;
-    while(l<r)
+    for(int i=0;i<Q;i++)
     {
-        if(deep[l]+deep[r]<=K)
+        for(int l=1;l<=deep[0];l++)
         {
-            sum+=r-l;
-            l++;
+            if(deep[l]*2>query[i]) break;
+            int id1=lower_bound(deep+l+1,deep+deep[0]+1,query[i]-deep[l])-deep;
+            int id2=upper_bound(deep+l+1,deep+deep[0]+1,query[i]-deep[l])-deep;
+            //if(i==0&&id2!=id1) printf("add%d %d\n",v,deep[l]);
+            ans[i]+=(id2-id1)*sgn;
         }
-        else r--;
     }
-    return sum;
 }
 void solve(int v)
 {
-    ans+=cal(v,0);
+    //printf("%d\n",v);
+    cal(v,0,1);
     centroid[v]=true;
     for(int i=0;i<(int)G[v].size();i++)
     {
         int to=G[v][i].to,cost=G[v][i].cost;
         if(centroid[to]) continue;
-        ans-=cal(to,cost);
+        cal(to,cost,-1);
         int rt=getroot(to,v,sz[to]).S;
         solve(rt);
     }
 }
 void ac()
 {
-    ans=0;
     int rt=getroot(1,0,N).S;
     solve(rt);
-    printf("%d\n",ans);
+    for(int i=0;i<Q;i++)
+    {
+        printf("%d ",ans[i]);
+        if(ans[i]) puts("Yes"); else puts("No");
+    }
 }
 int main()
 {
-    while(scanf("%d%d",&N,&K)==2)
+    scanf("%d%d",&N,&Q);
+    for(int i=0;i<N-1;i++)
     {
-        if(!N&&!K) break;
-        for(int i=1;i<=N;i++)
-            G[i].clear();
-        for(int i=0;i<N-1;i++)
-        {
-            int x,y,z;
-            scanf("%d%d%d",&x,&y,&z);
-            G[x].push_back((edge){y,z});
-            G[y].push_back((edge){x,z});
-        }
-        memset(centroid,false,sizeof(centroid));
-        ac();
+        int x,y,z;
+        scanf("%d%d%d",&x,&y,&z);
+        G[x].push_back((edge){y,z});
+        G[y].push_back((edge){x,z});
     }
+    memset(centroid,false,sizeof(centroid));
+    for(int i=0;i<Q;i++)
+        scanf("%d",&query[i]);
+    ac();
     return 0;
 }
+
+
