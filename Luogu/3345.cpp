@@ -18,9 +18,10 @@ typedef long long ll;
 typedef pair<int,int> P;
 struct edge{int to,cost;};
 vector<edge> G[MAXN];
-int n,q,root,a[MAXN],st[MAXLOGN][MAXN],vs[MAXN*2-1],depth[MAXN*2-1],dist[MAXN],id[MAXN],sz[MAXN],d[MAXN];
+int n,q,tot,ss,root,st[MAXLOGN][MAXN],vs[MAXN*2-1],dist[MAXN],sz[MAXN],f[MAXN];
 int fa[MAXN];
 ll sum[MAXN],sum1[MAXN],sum2[MAXN];
+vector<edge> CDT[MAXN];
 bool centroid[MAXN];
 inline int read()
 {
@@ -29,71 +30,53 @@ inline int read()
     do{x=x*10+ch-'0';ch=getchar();}while(ch>='0'&&ch<='9');
     return f*x;
 }
-void dfs(int v,int p,int d,int &k,int Dist)
+void dfs(int v,int p)
 {
-    id[v]=k;
-    vs[k]=v;
-    depth[k++]=d;
-    dist[v]=Dist;
+    st[0][++tot]=dist[v];vs[v]=tot;
     //printf("%d %d\n",v,dist[v]);
     for(int i=0;i<(int)G[v].size();i++)
     {
-        if(G[v][i].to!=p)
+        int to=G[v][i].to;
+        if(to!=p)
         {
-            dfs(G[v][i].to,v,d+1,k,Dist+G[v][i].cost);
-            vs[k]=v;
-            depth[k++]=d;
+            dist[to]=dist[v]+G[v][i].cost;
+            dfs(to,v);
+            st[0][++tot]=dist[v];
         }
     }
-}
-int getMin(int x, int y)
-{
-    return depth[x]<depth[y]?x:y;
 }
 
 void rmq_init(int n)
 {
-    for(int i=1;i<=n;++i) st[0][i]=i;
-    for(int i=1;1<<i<n;++i)
+    for(int i=1;1<<i<=n;++i)
         for(int j=1;j+(1<<i)-1<=n;++j)
-            st[i][j]=getMin(st[i-1][j],st[i-1][j+(1<<(i-1))]);
+            st[i][j]=min(st[i-1][j],st[i-1][j+(1<<(i-1))]);
 }
 void init(int V)
 {
-    int k=0;
-    dfs(1,0,0,k,0);
+    tot=0;
+    dfs(1,0);
     rmq_init(V*2-1);
 }
-int query(int l, int r)
-{
-    int k=31-__builtin_clz(r-l+1);
-    return getMin(st[k][l],st[k][r-(1<<k)+1]);
-}
-int lca(int u,int v)
-{
-    if(u==v) return u;
-    return vs[query(min(id[u],id[v]),max(id[u],id[v]))];
-}
+
 int dis(int u,int v)
 {
-    return dist[u]+dist[v]-2*dist[lca(u,v)];
+    if(vs[u]>vs[v]) swap(u,v);
+    int k=31-__builtin_clz(vs[v]-vs[u]+1);
+    return dist[u]+dist[v]-2*min(st[k][vs[u]],st[k][vs[v]-(1<<k)+1]);
 }
-P getroot(int v,int p,int t)//search_centroid
+void getroot(int v,int p)
 {
-    P res=P(INT_MAX,-1);
-	int m=0;
-    sz[v]=1;
+    sz[v]=1;f[v]=0;
     for(int i=0;i<(int)G[v].size();i++)
     {
         int to=G[v][i].to;
-        if(to==p||centroid[to]) continue;
-        res=min(res,getroot(to,v,t));
-        m=max(m,sz[to]);
-        sz[v]+=sz[to];
+        if(centroid[to]||to==p) continue;
+        getroot(to,v);sz[v]+=sz[to];
+        f[v]=max(f[v],sz[to]);
     }
-    m=max(m,t-sz[v]);
-    res=min(res,P(m,v));
-    return res;
+    f[v]=max(f[v],ss-sz[v]);
+    if(f[v]<f[root])root=v;
 }
 void solve(int v,int p)
 {
@@ -103,7 +86,8 @@ void solve(int v,int p)
     {
         int to=G[v][i].to;
         if(centroid[to]) continue;
-        root=getroot(to,v,sz[to]).S;
+        ss=sz[to];f[0]=sz[to];root=0;
+        getroot(to,0);CDT[v].push_back((edge){root,to});
         solve(root,v);
     }
     root=v;
@@ -111,7 +95,8 @@ void solve(int v,int p)
 void pre()
 {
     init(n);
-    root=getroot(1,0,n).S;
+    ss=n;f[0]=n;root=0;
+    getroot(1,0);
     solve(root,0);
 }
 void update(int v,int dlt)
@@ -141,10 +126,10 @@ ll query2(int v)
 ll Query(int v)
 {
     ll ans=query2(v);
-    for(int i=0;i<(int)G[v].size();i++)
+    for(int i=0;i<(int)CDT[v].size();i++)
     {
-        int to=G[v][i].to;
-        if(query2(to)<ans) return Query(to);
+        int to=CDT[v][i].to,cost=CDT[v][i].cost;
+        if(query2(cost)<ans) return Query(to);
     }
     return ans;
 }
@@ -160,6 +145,7 @@ int main()
     pre();
     //printf("%d\n",dis(2,8));
     //printf("%d\n",lca(2,8));
+    //printf("%d\n",root);
     for(int i=0;i<q;i++)
     {
         int u,v;
