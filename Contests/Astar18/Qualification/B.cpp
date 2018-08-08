@@ -5,7 +5,6 @@
     > Created Time: 2018-08-04 16:51:17
  ************************************************************************/
 
-#pragma GCC optimize(3)
 #include<bits/stdc++.h>
 #define MAXN 100005
 #define INF 1000000000
@@ -15,18 +14,18 @@
 using namespace std;
 typedef long long ll;
 typedef pair<int,int> P;
-int T,n,q;
-string str;
+int t,n,q;
+char str[MAXN];
 int cnt[26][MAXN];
 int main()
 {
-    scanf("%d",&T);
+    scanf("%d",&t);
     int tot=0;
-    while(T--)
+    while(t--)
     {
         tot++;
         scanf("%d%d",&n,&q);
-        cin>>str;
+        scanf("%s",str);
         for(int i=0;i<=26;i++)
             for(int j=1;j<=n;j++)
                 if(str[j-1]=='A'+i) cnt[i][j]=cnt[i][j-1]+1; else cnt[i][j]=cnt[i][j-1]; 
