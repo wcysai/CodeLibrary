@@ -1,251 +1,126 @@
 #include<cstdio>
-#include<cstring>
+#include<cmath>
 #include<iostream>
 #include<cstdlib>
-#include<cmath>
+#include<cstring>
 #include<algorithm>
-#define MAXN 120050
+#define MAXN 100005
+#define INF 1000000000
+#define MOD 1000000007
+#define F first
+#define S second
 using namespace std;
 typedef long long ll;
-ll n,q,a[MAXN];
-struct node
+typedef pair<int,int> P;
+ll ch[MAXN][2],f[MAXN],tot,size[MAXN],key[MAXN],lazy[MAXN],ans[MAXN],sum[MAXN],a[MAXN];
+ll n,q,sz,root;
+    template <class T>
+bool scan_d(T &ret)
 {
-    node *l, *r, *p;
-    ll key;
-    ll cnt;
-    ll val;
-    ll sum;
-    ll lazy;
-} *tree;
-void Update(node *x)
-{
-    x->cnt = 1;
-    x->sum=x->val;
-    if(x->l) x->cnt += x->l->cnt;
-    if(x->r) x->cnt += x->r->cnt;
-    if(x->l) x->sum+=x->l->sum;
-    if(x->r) x->sum+=x->r->sum;
-}
-void Lazy(node *x)
-{
-    if(x->l) x->l->sum += (x->l->cnt)*(x->lazy);
-    if(x->r) x->r->sum += (x->r->cnt)*(x->lazy);
-    if(x->l) x->l->lazy += x->lazy;
-    if(x->r) x->r->lazy += x->lazy;
-    if(x->l) x->l->val+= x->lazy;
-    if(x->r) x->r->val += x->lazy;
-    x->lazy = 0;
-}
-void Rotate(node *x)
-{
-    node *p = x->p;
-    node *b;
-    if(x == p->l)
+    char c;
+    int sgn;
+    T bit=0.1;
+    if(c=getchar(), c==EOF)
+        return 0;
+    while(c!='-' && c!='.' && (c<'0' || c>'9'))
+        c=getchar();
+    sgn=(c=='-')? -1:1;
+    ret=(c=='-')? 0:(c-'0');
+    while(c=getchar(), c>='0' && c<='9')
+        ret=ret*10+(c-'0');
+    if(c==' ' || c=='\n')
     {
-        p->l = b = x->r;
-        x->r = p;
+        ret*=sgn;
+        return 1;
     }
-    else
-    {
-        p->r = b = x->l;
-        x->l = p;
-    }
-    x->p = p->p;
-    p->p = x;
-    if(b) b->p = p;
-    (x->p? p == x->p->l? x->p->l : x->p->r : tree) = x;
-    Update(p);
-    Update(x);
+    while(c=getchar(), c>='0' && c<='9')
+        ret+=(c-'0')*bit, bit/=10;
+    ret*=sgn;
+    return 1;
 }
-void Splay(node *x)
+inline bool get(ll x)
 {
-    while(x->p)
-    {
-        node *p = x->p;
-        node *g = p->p;
-        if(g) Rotate((x == p->l) == (p == g->l)? p : x);
-        Rotate(x);
-    }
+    return ch[f[x]][1]==x;
 }
-void Insert(ll key,ll val)
+inline void pushup(ll x)
 {
-    node *p = tree, **pp;
-    if(!p)
-    {
-        node *x = new node;
-        tree = x;
-        x->l = x->r = x->p = NULL;
-        x->key = key;
-        x->val = val;
-        x->cnt = 1;
-        x->sum= val;
-        x->lazy = 0;
-        return;
-    }
-    Lazy(p);
-    while(1)
-    {
-        if(key == p->key) return;
-        if(key < p->key)
-        {
-            if(!p->l)
-            {
-                pp = &p->l;
-                break;
-            }
-            p = p->l;
-            Lazy(p);
-        }
-        else
-        {
-            if(!p->r)
-            {
-                pp = &p->r;
-                break;
-            }
-            p = p->r;
-            Lazy(p);
-        }
-    }
-    node *x = new node;
-    *pp = x;
-    x->l = x->r = NULL;
-    x->p = p;
-    x->val = val;
-    x->key = key;
-    x->cnt = 1;
-    x->sum = val;
-    x->lazy = 0;
-    Splay(x);
+    size[x]=size[ch[x][0]]+size[ch[x][1]]+1;
+    sum[x]=key[x]+sum[ch[x][0]]+sum[ch[x][1]];
 }
-bool Find(ll key)
+inline void modify(ll x,ll v)
 {
-    node *p = tree;
-    node *ret;
-    if(!p) return false;
-    Lazy(p);
-    while(p)
-    {
-        if(key < p->key)
-        {
-            if(!p->l) break;
-            p = p->l;
-            Lazy(p);
-        }
-        else
-        {
-            ret = p;
-            if(!p->r) break;
-            p = p->r;
-            Lazy(p);
-        }
-    }
-    Splay(ret);
-    return key == ret->key;
+    if(!x) return;
+    lazy[x]+=v;key[x]+=v;
+    sum[x]+=v*size[x];
 }
-void Delete(ll key)
+inline void pushdown(ll x)
 {
-    if(!Find(key)) return;
-    node *p = tree;
-    if(p->l)
-    {
-        if(p->r)
-        {
-            tree = p->l;
-            tree->p = NULL;
-            node *x = tree;
-            Lazy(x);
-            while(x->r)
-            {
-                x = x->r;
-                Lazy(x);
-            }
-            x->r = p->r;
-            p->r->p = x;
-            Splay(x);
-            delete p;
-            return;
-        }
-        tree = p->l;
-        tree->p = NULL;
-        delete p;
-        return;
-    }
-    if(p->r)
-    {
-        tree = p->r;
-        tree->p = NULL;
-        delete p;
-        return;
-    }
-    tree = NULL;
+    if(!lazy[x]) return;
+    modify(ch[x][0],lazy[x]);modify(ch[x][1],lazy[x]);
+    lazy[x]=0;
 }
-
-void Find_Kth(ll k)
+inline void rotate(ll x)
 {
-    node *x = tree;
-    Lazy(x);
-    while(1)
-    {
-        while(x->l && x->l->cnt > k)
-        {
-            x = x->l;
-            Lazy(x);
-        }
-        if(x->l) k -= x->l->cnt;
-        if(!k--) break;
-        x = x->r;
-        Lazy(x);
-    }
-    Splay(x);
+    ll old=f[x],oldf=f[old],whichx=get(x);
+    pushdown(old);pushdown(x);
+    ch[old][whichx]=ch[x][whichx^1]; f[ch[old][whichx]]=old;
+    ch[x][whichx^1]=old; f[old]=x;
+    f[x]=oldf;
+    if (oldf) ch[oldf][ch[oldf][1]==old]=x;
+    pushup(old); pushup(x);
 }
-void Interval(ll l, ll r)
+inline void splay(ll x,ll goal)
 {
-    Find_Kth(l - 1);
-    node *x = tree;
-    tree = x->r;
-    tree->p = NULL;
-    Find_Kth(r - l + 1);
-    x->r = tree;
-    tree->p = x;
-    tree = x;
+    pushdown(x);
+    for(ll fa;(fa=f[x])!=goal;rotate(x))
+        if(f[fa]!=goal) rotate((get(x)==get(fa))?fa:x);
+    if(goal==0) root=x;
 }
-void Add(ll l, ll r, ll z)
+inline ll findx(ll now,ll k)
 {
-    Interval(l, r);
-    node *x = tree->r->l;
-    if(x->key!=0&&x->key!=n+1)
+    while(now)
     {
-        x->lazy += z;
-        x->val+=z;
-        x->sum+=(x->cnt)*z;
+        if(k<=size[ch[now][0]]) now=ch[now][0];
+        else if(k<=size[ch[now][0]]+1) return now;
+        else k-=size[ch[now][0]]+1,now=ch[now][1];
     }
-    return;
 }
+void build(ll &k,ll l,ll r,ll fa)
+{
+    if(l>r) return;
+    ll mid=(l+r)/2;
+    k=++tot;f[k]=fa;
+    key[k]=sum[k]=a[mid];lazy[k]=0;size[k]=1;
+    build(ch[k][0],l,mid-1,k);build(ch[k][1],mid+1,r,k);
+    pushup(k);
+    //printf("%lld %lld\n",k,sum[k]);
+}
+char c[2];
 int main()
 {
-    scanf("%I64d %I64d",&n,&q);
-    for(ll i=0;i<n;i++)
-        scanf("%I64d",&a[i]);
-    for(ll i=0;i<=n+1;i++)
-        if(i==0||i==n+1) Insert(i,0); else Insert(i,a[i-1]);
+    scan_d(n);scan_d(q);
+    for(ll i=1;i<=n;i++) scan_d(a[i]);
+    key[0]=key[n+1]=0;
+    build(root,0,n+1,0);
+    ll l,r,v;
     for(ll i=0;i<q;i++)
     {
-        ll x,y;
-        ll z;
-        char str[2];
-        scanf("%s %I64d %I64d",str,&x,&y);
-        if(str[0]=='C')
+        scanf("%s",c);
+        if(c[0]=='Q')
         {
-            scanf("%I64d",&z);
-            Add(x,y,z);
+            scan_d(l);scan_d(r);
+            l++;r++;
+            ll x=findx(root,l-1);splay(x,0);
+            ll y=findx(root,r+1);splay(y,root);
+            printf("%lld\n",sum[ch[ch[root][1]][0]]);
         }
         else
         {
-            Interval(x,y);
-            node *x = tree->r->l;
-            printf("%I64d\n",x->sum);
+            scan_d(l);scan_d(r);scan_d(v);
+            l++;r++;
+            ll x=findx(root,l-1);splay(x,0);
+            ll y=findx(root,r+1);splay(y,root);
+            modify(ch[ch[root][1]][0],v);pushup(ch[root][1]);pushup(root);
         }
     }
-    return 0;
 }
