@@ -22,7 +22,7 @@ int main()
     cin>>str;
     str=str+str;
     n=str.size();
-    int ans=0,cnt=1;
+    int ans=1,cnt=1;
     for(int i=1;i<n;i++)
     {
         if(str[i]!=str[i-1]) {cnt++; ans=max(ans,cnt);}
