@@ -1,59 +1,51 @@
+/*************************************************************************
+    > File Name: D.cpp
+    > Author: Roundgod
+    > Mail: wcysai@foxmail.com 
+    > Created Time: 2018-09-14 21:41:38
+ ************************************************************************/
+
+#pragma GCC optimize(3)
 #include<bits/stdc++.h>
 #define MAXN 1005
+#define INF 1000000000
+#define MOD 1000000007
+#define F first
+#define S second
 using namespace std;
-int n,k;
-int r[MAXN+1];
-int tmp[MAXN+1];
-bool compare_sa(int i,int j)
+typedef long long ll;
+typedef pair<int,int> P;
+int n;
+char str[MAXN];
+int dp[MAXN][MAXN][26];
+int _mod(int x,int y) 
 {
-    if(r[i]!=r[j]) return r[i]<r[j];
-    else
-    {
-        int ri=i+k<=n?r[i+k]:-1;
-        int rj=j+k<=n?r[j+k]:-1;
-        return ri<rj;
-    }
+    int s=x+y;
+    return s>=MOD?s-MOD:s;
 }
-void construct_sa(string S,int *sa)
+int solve(int l,int r,int ch)
 {
-    n=S.length();
-    for(int i=0;i<=n;i++)
+    if(l>r) return 0;
+    if(l==r) return (str[l]==ch+'a')?1:0;
+    if(dp[l][r][ch]!=-1) return dp[l][r][ch];
+    int res;
+    if(str[l]=='a'+ch&&str[r]=='a'+ch)
     {
-        sa[i]=i;
-        r[i]=i<n?S[i]:-1;
+        res=2;
+        for(int i=0;i<26;i++) res=_mod(res,solve(l+1,r-1,i));
     }
-    for(k=1;k<=n;k*=2)
-    {
-        sort(sa,sa+n+1,compare_sa);
-        tmp[sa[0]]=0;
-        for(int i=1;i<=n;i++)
-        {
-            tmp[sa[i]]=tmp[sa[i-1]]+(compare_sa(sa[i-1],sa[i])?1:0);
-        }
-        for(int i=0;i<=n;i++)
-        {
-            r[i]=tmp[i];
-        }
-    }
-}
-void construct_lcp(string S,int *sa,int *lcp)
-{
-    int n=S.length();
-    for(int i=0;i<=n;i++) r[sa[i]]=i;
-    int h=0;
-    lcp[0]=0;
-    for(int i=0;i<n;i++)
-    {
-        int j=sa[r[i]-1];
-        if(h>0) h--;
-        for(;j+h<n&&i+h<n;h++)
-        {
-            if(S[j+h]!=S[i+h]) break;
-        }
-        lcp[r[i]-1]=h;
-    }
+    else res=_mod(solve(l+1,r,ch),solve(l,r-1,ch))-solve(l+1,r-1,ch);
+    if(res<0) res+=MOD;
+    return dp[l][r][ch]=res;
 }
 int main()
 {
+    scanf("%s",str+1);
+    n=strlen(str+1);
+    memset(dp,-1,sizeof(dp));
+    int ans=0;
+    for(int i=0;i<26;i++) ans=_mod(ans,solve(1,n,i));
+    printf("%d\n",ans);
     return 0;
 }
+
