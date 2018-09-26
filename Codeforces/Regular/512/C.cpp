@@ -54,16 +54,12 @@ struct segtree
         ll mid=(l+r)/2;
         return query1(k*2,l,mid,x,y)+query1(k*2+1,mid+1,r,x,y);
     }
-    ll find(ll k,ll l,ll r)
+    ll find(ll k,ll l,ll r,ll s)
     {
-        ll s=query1(1,1,n,l,r);
-        ll LL=l-1,rr=r;
-        while(rr-LL>1)
-        {
-            ll mid=(LL+rr)/2;
-            if(query1(1,1,n,l,mid)*2<=s) LL=mid; else rr=mid;
-        }
-        return rr;
+        if(l==r) return l;
+        ll mid=(l+r)/2;
+        if(sum[k*2]<=s) return find(k*2+1,mid+1,r,s-sum[k*2]);
+        return find(k*2,l,mid,s);
     }
     ll query2(ll k,ll l,ll r,ll x,ll y)
     {
@@ -93,7 +89,8 @@ int main()
         if(l<0) seg.update(1,1,n,-l,r);
         else
         {
-            ll pos=seg.find(1,l,r);
+            ll A=seg.query1(1,1,n,1,l-1),B=seg.query1(1,1,n,l,r),s=A+B/2;
+            ll pos=seg.find(1,1,n,s);
             ll ans=0;
             ans=(1LL*(p[pos]-pos)*(seg.query1(1,1,n,l,pos-1)%MOD)+seg.query3(1,1,n,l,pos-1)-seg.query2(1,1,n,l,pos-1)+MOD)%MOD;
             ans=(ans+seg.query2(1,1,n,pos+1,r)+1LL*(pos-p[pos])*(seg.query1(1,1,n,pos+1,r)%MOD)%MOD-seg.query3(1,1,n,pos+1,r)+MOD)%MOD;
