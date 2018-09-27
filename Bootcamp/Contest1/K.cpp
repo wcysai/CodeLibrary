@@ -15,8 +15,8 @@
 using namespace std;
 typedef long long ll;
 typedef pair<int,int> P;
-ll bit[MAXN+1],a[MAXN],pos[MAXN],b[MAXN],n,k;
-vector<ll> v,ans;
+ll bit[MAXN+1],a[MAXN],pos[MAXN],n,k;
+vector<ll> ans;
 ll sum(ll i)
 {
     ll s=0;
@@ -37,38 +37,45 @@ void add(ll i,ll x)
 }
 struct segtree
 {
-    int val[4*MAXN],left[4*MAXN];
-    void pushup(int k)
+    ll val[4*MAXN],left[4*MAXN];
+    void pushup(ll k)
     {
         val[k]=min(val[k*2],val[k*2+1]);
         left[k]=left[k*2]+left[k*2+1];
     }
-    void build(int k,int l,int r)
+    void build(ll k,ll l,ll r)
     {
-        if(l==r) {left[k]=1; val[k]=v[l]; return;}
-        int mid=(l+r)/2;
+        if(l==r) {left[k]=1; val[k]=a[l]; return;}
+        ll mid=(l+r)/2;
         build(k*2,l,mid);build(k*2+1,mid+1,r);
         pushup(k);
     }
-    void update(int k,int l,int r,int p)
+    void update(ll k,ll l,ll r,ll p)
     {
         if(l==r) {left[k]=0; val[k]=INF; return;}
-        int mid=(l+r)/2;
+        ll mid=(l+r)/2;
         if(p<=mid) update(k*2,l,mid,p); else update(k*2+1,mid+1,r,p);
         pushup(k);
     }
-    int find(int k,int l,int r,int s)
+    ll find(ll k,ll l,ll r,ll s)
     {
         if(l==r) return l;
-        int mid=(l+r)/2;
+        ll mid=(l+r)/2;
         if(left[k*2]>=s) return find(k*2,l,mid,s); else return find(k*2+1,mid+1,r,s-left[k*2]);
     }
-    int query(int k,int l,int r,int x,int y)
+    ll query(ll k,ll l,ll r,ll x,ll y)
     {
         if(l>y||x>r) return INF;
         if(l>=x&&r<=y) return val[k];
-        int mid=(l+r)/2;
+        ll mid=(l+r)/2;
         return min(query(k*2,l,mid,x,y),query(k*2+1,mid+1,r,x,y));
+    }
+    ll query2(ll k,ll l,ll r,ll x,ll y)
+    {
+        if(l>y||x>r) return 0;
+        if(l>=x&&r<=y) return left[k];
+        ll mid=(l+r)/2;
+        return query2(k*2,l,mid,x,y)+query2(k*2+1,mid+1,r,x,y);
     }
 }seg;
 int main()
@@ -86,34 +93,17 @@ int main()
         for(ll i=1;i<=n;i++) printf("%lld\n",a[i]);
         return 0;
     }
-    ll need=inv-k,cnt=0;
+    ll need=inv-k;
+    seg.build(1,1,n);
     for(ll i=1;i<=n;i++)
     {
-        ll use=sum(pos[i]-1);
-        if(use>need) break; 
-        else
-        {
-            need-=use;
-            cnt++;
-            add(pos[i],-1);
-        }
-    }
-    assert(need<=n);
-    v.push_back(0);
-    for(ll i=1;i<=n;i++) if(a[i]>cnt) v.push_back(a[i]);
-    for(ll i=1;i<=n;i++) pos[a[i]]=i;
-    n=n-cnt;
-    seg.build(1,1,n);
-    for(int i=1;i<=n;i++)
-    {
         if(need<=0) break;
-        int p=seg.find(1,1,n,need+1);
-        int q=seg.query(1,1,n,1,p);
-        ans.push_back(q);need-=pos[q]-i;seg.update(1,1,n,pos[q]);v[pos[q]]=INF;
+        ll p=seg.find(1,1,n,need+1);
+        ll q=seg.query(1,1,n,1,p);
+        ans.push_back(q);need-=seg.query2(1,1,n,1,pos[q])-1;seg.update(1,1,n,pos[q]);a[pos[q]]=INF;
     }
-    for(ll i=1;i<=cnt;i++) printf("%lld\n",i);
     for(ll i=0;i<(int)ans.size();i++) printf("%lld\n",ans[i]);
-    for(ll i=1;i<=n;i++) if(v[i]!=INF) printf("%lld\n",v[i]);
+    for(ll i=1;i<=n;i++) if(a[i]!=INF) printf("%lld\n",a[i]);
     return 0;
 }
 
