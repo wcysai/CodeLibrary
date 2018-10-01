@@ -19,34 +19,99 @@ typedef pair<int,int> P;
 unordered_map<int,int>mp;
 int p,q,a,b;
 int n,m,ans,t;
-ll now;
+int now;
 bool flag;
 
-int fast_pow(int x)
+vector<int> aa;
+int pow_mod(int a,int i,int p)
 {
-    ll sum = 1, aa = a;
-    while (x>0)
+    int s=1;
+    while(i)
     {
-        if (x&1) 
-        {
-            sum = sum*aa;
-            if(sum>=p) sum%=p;
-        }
-        x=x>>1;
-        aa=aa*aa;
-        if(aa>=p) aa%=p;
+        if(i&1) s=1LL*s*a%p;
+        a=1LL*a*a%p;
+        i>>=1;
     }
-    return sum;
+    return s;
+}
+bool g_test(int g)
+{
+    for(int i=0;i<(int)aa.size();i++)
+        if(pow_mod(g,(p-1)/aa[i],p)==1)
+            return 0;
+    return 1;
+}
+int primitive_root()
+{
+    int tmp=p-1;
+    for(int i=2;i<=tmp/i;i++)
+        if(tmp%i==0)
+        {
+            aa.push_back(i);
+            while(tmp%i==0)
+                tmp/=i;
+        }
+    if(tmp!=1)
+    {
+        aa.push_back(tmp);
+    }
+    int g=1;
+    while(true)
+    {
+        if(g_test(g)) return g;
+        ++g;
+    }
+}
+int extgcd(int a,int b,int &x,int &y)
+{
+    int d=a;
+    if(b!=0)
+    {
+        d=extgcd(b,a%b,y,x);
+        y-=(a/b)*x;
+    }
+    else
+    {
+        x=1;
+        y=0;
+    }
+    return d;
+}
+int mod_inverse(int a,int m)
+{
+    int x,y;
+    extgcd(a,m,x,y);
+    return (m+x%m)%m;
+}
+int find_order(int x)
+{
+    now=x;
+    for(int i=0;i<=100;++i)   
+    {    
+        if(mp.count(now))
+        {
+            ans = (1LL*i*m+mp[now])%p;
+            return ans;
+        }
+        now=1LL*now*t%p;
+    }
+    return -1;
 }
 int main()
 {
     scanf("%d%d",&p,&q);
-    m=ceil(sqrt(p));
+    int g=primitive_root();
+    m=1000000;
+    int now=1;mp[now]=0,t=pow_mod(g,m,p);t=pow_mod(t,p-2,p);
+    for(int i=1;i<=m;i++)
+    {
+        now=1LL*now*g%p;
+        if(!mp.count(now)) mp[now]=i; else break;
+    }
     for(int i=0;i<q;i++)
     {
-        scanf("%d%d",&a,&b);
-        if(b==1) {puts("0"); continue;}
-        if(a%p==0)
+        scanf("%d%d",&a,&b);a=a%p;b=b%p;
+        if(a==0)
         {
             if(b==1) puts("0");
             else if(b==0) puts("1");
@@ -54,32 +119,14 @@ int main()
             continue;
         }
         if(b==0) {puts("-1"); continue;}
-        mp.clear();
-        flag = false;
-        now = b%p;       
-        mp[now] = 0;
-        for(int i=1;i<=m;++i)
-        {
-            now = now*a;
-            if(now>=p) now%=p;
-            mp[now] = i;
-        }
-        t = fast_pow(m);
-        now = 1;
-        for(int i=1;i<=m;++i)   
-        {
-            now = now*t;
-            if(now>=p) now%=p;
-            if(mp[now])
-            {
-                flag = true;
-                ans = (1LL*i*m-mp[now])%p;
-                if(ans<0) ans+=p;
-                printf("%d\n",ans);
-                break;
-            }
-        }
-        if(!flag) puts("-1");
+        int x=find_order(a),y=find_order(b);
+        //printf("%d %d\n",x,y);
+        if(y==0) {puts("0"); continue;}
+        if(x==0) {puts("-1"); continue;}
+        int mod=p-1;
+        int gg=__gcd(x,mod);if(y%gg) {puts("-1"); continue;}
+        x/=gg;y/=gg;mod/=gg;
+        printf("%lld\n",1LL*y*mod_inverse(x,mod)%mod);
     }
     return 0;
 }
