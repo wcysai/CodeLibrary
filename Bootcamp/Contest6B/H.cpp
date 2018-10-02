@@ -1,29 +1,58 @@
 /*************************************************************************
-    > File Name: A.cpp
+    > File Name: H.cpp
     > Author: Roundgod
     > Mail: wcysai@foxmail.com 
-    > Created Time: 2018-10-03 02:00:47
+    > Created Time: 2018-10-03 06:05:23
  ************************************************************************/
 
 #pragma GCC optimize(3)
 #include<bits/stdc++.h>
 #define MAXN 100005
 #define INF 1000000000
-#define MOD 1000000007
+#define MOD 7340033
 #define F first
 #define S second
 using namespace std;
 typedef long long ll;
 typedef pair<int,int> P;
-const double PI=acos(-1.0);
-struct num
+int pow_mod(int a,int i,int m)
 {
-    double x,y;
-    num() {x=y=0;}
-    num(double x,double y):x(x),y(y){}
-};
+    int s=1;
+    while(i)
+    {
+        if(i&1)  s=1LL*s*a%m;
+        a=1LL*a*a%m;
+        i>>=1;
+    }
+    return s;
+}
+inline int inc(int a,int b) {a+=b; return a>=MOD?a-MOD:a;}
+inline int dec(int a,int b) {a-=b; return a<0?a+MOD:a;}
+int Tonelli_Shanks(int n,ll p)
+{
+    if(p==2) return (n&1)?1:-1;
+    if(pow_mod(n,p>>1,p)!=1) return -1;
+    if(p&2) return pow_mod(n,(p+1)>>2,p);
+    int s=__builtin_ctzll(p^1);
+    int q=p>>s,z=2;
+    for(;pow_mod(z,p>>1,p)==1;++z);
+    int c=pow_mod(z,q,p),r=pow_mod(n,(q+1)>>1,p),t=pow_mod(n,q,p),tmp;
+    for(int m=s,i;t!=1;)
+    {
+        for(i=0,tmp=t;tmp!=1;++i) tmp=tmp*tmp%p;
+        for(;i<--m;) c=c*c%p;
+        r=r*c%p;c=c*c%p;t=t*c%p;
+    }
+    return r;
+}
 namespace fft
 {
+    struct num
+    {
+        double x,y;
+        num() {x=y=0;}
+        num(double x,double y):x(x),y(y){}
+    };
     inline num operator+(num a,num b) {return num(a.x+b.x,a.y+b.y);}
     inline num operator-(num a,num b) {return num(a.x-b.x,a.y-b.y);}
     inline num operator*(num a,num b) {return num(a.x*b.x-a.y*b.y,a.x*b.y+a.y*b.x);}
@@ -54,17 +83,17 @@ namespace fft
         }
     }
 
-    void fft(vector<num> &a,int t,int n=-1)
+    void fft(vector<num> &a,int n=-1)
     {
         if(n==-1) n=a.size();
         assert((n&(n-1))==0);
         int zeros=__builtin_ctz(n);
         ensure_base(zeros);
         int shift=base-zeros;
-        for(int i=0;i<t;i++)
+        for(int i=0;i<n;i++)
             if(i<(rev[i]>>shift))
                 swap(a[i],a[rev[i]>>shift]);
-        for(int k=1;k<t;k<<=1)
+        for(int k=1;k<n;k<<=1)
         {
             for(int i=0;i<n;i+=2*k)
             {
@@ -173,16 +202,79 @@ namespace fft
         return multiply_mod(a,a,m,1);
     }
 };
-int s,t;
+namespace poly
+{
+    int inv(int x) {return pow_mod(x,MOD-2,MOD);}
+    vector<int> fa,fb,fc,fd;
+    vector<int> get_inv(vector<int> &a,int n)
+    {
+        assert(a[0]!=0);
+        if(n==1)
+        {
+            fa.resize(1);
+            fa[0]=inv(a[0]);
+            return fa;
+        }
+        fa=get_inv(a,(n+1)>>1);
+        fb=fft::multiply_mod(fa,fa,MOD,1);
+        fb=fft::multiply_mod(fb,a,MOD);
+        fa.resize(n);
+        for(int i=0;i<n;i++)
+        {
+            fa[i]=inc(fa[i],fa[i]);
+            fa[i]=dec(fa[i],fb[i]);
+        }
+        return fa;
+    }
+    vector<int> get_sqrt(vector<int> &a,int n)
+    {
+        if(n==1) 
+        {
+            fc.resize(1);
+            int x=Tonelli_Shanks(a[0],MOD);
+            assert(x!=-1);
+            fc[0]=x;return fc;
+        }
+        fd=get_sqrt(a,(n+1)>>1);
+        fc=get_inv(fd,(n+1)>>1);
+        fd=fft::multiply_mod(fd,fd,MOD,1);
+        for(int i=0;i<(n+1)/2;i++) fc[i]=1LL*fc[i]*((MOD+1)/2)%MOD;
+        for(int i=0;i<n;i++) fd[i]=inc(fd[i],a[i]);
+        fd=fft::multiply_mod(fd,fc,MOD);
+        fd.resize(n);return fd;
+    }
+    vector<int> diff(vector<int> &a)
+    {
+        for(int i=1;i<(int)a.size();i++) a[i-1]=1LL*a[i]*i%MOD;
+        if(a.size()>=1) a.resize((int)a.size()-1);
+        return a;
+    }
+    vector<int> intg(vector<int> &a)
+    {
+        int sz=(int)a.size();
+        a.resize(sz+1);
+        static vector<int> Inv(sz+1);
+        Inv[1]=1;
+        for(int i=2;i<=sz;i++) Inv[i]=dec(MOD,1LL*Inv[MOD%i]*(MOD/i)%MOD);
+        for(int i=sz;i>=1;i--) a[i]=1LL*a[i-1]*Inv[i]%MOD;
+        a[0]=0;
+        return a;
+    }
+};
+int m,n;
 int main()
 {
-    scanf("%d%d",&s,&t);
-    vector<num> a;
-    a.resize(1<<s);
-    for(int i=0;i<(1<<s);i++)
-        scanf("%lf%lf",&a[i].x,&a[i].y);
-    fft::fft(a,t);
-    for(int i=0;i<(1<<s);i++) printf("%f %f\n",a[i].x,a[i].y);
+    scanf("%d%d",&m,&n);
+    vector<int> a(m);
+    for(int i=0;i<=n;i++)
+    {
+        int x;
+        scanf("%d",&x);
+        if(i<m) a[i]=x; 
+    }
+    if(a[0]==0) {puts("The ears of a dead donkey"); return 0;}
+    a=poly::get_inv(a,m);
+    for(int i=0;i<m;i++) printf("%d ",a[i]);
     return 0;
 }
 
