@@ -1,13 +1,14 @@
 /*************************************************************************
-    > File Name: E.cpp
+    > File Name: I.cpp
     > Author: Roundgod
     > Mail: wcysai@foxmail.com 
-    > Created Time: 2018-10-03 15:40:03
+    > Created Time: 2018-10-04 01:08:44
  ************************************************************************/
 
 #pragma GCC optimize(3)
 #include<bits/stdc++.h>
-#define MAXV 100005
+#define MAXV 55005
+#define MAXE 25005
 #define INF 1000000000
 #define MOD 1000000007
 #define F first
@@ -78,42 +79,46 @@ int max_flow(int s,int t)
           flow+=f;
     }
 }
-int n;
-vector<P> vec;
-P s,t;
-P u[MAXV],v[MAXV];
+int n,m;
+P E[MAXE];
+int ans[MAXE];
+bool C(int d)
+{
+    for(int i=1;i<=V;i++) G[i].clear();
+    for(int i=1;i<=m;i++)
+    {
+        add_edge(V-1,i,1);
+        add_edge(i,E[i].F+m,1);
+        add_edge(i,E[i].S+m,1);
+    }
+    for(int i=1;i<=n;i++) add_edge(m+i,V,d);
+    int cur=max_flow(V-1,V);
+    //printf("%d %d\n",d,cur);
+    return cur==m;
+}
 int main()
 {
-    scanf("%d",&n);
-    for(int i=0;i<n;i++)
+    scanf("%d%d",&n,&m);
+    V=n+m+2;
+    for(int i=1;i<=m;i++) scanf("%d%d",&E[i].F,&E[i].S);
+    int l=-1,r=m;
+    while(r-l>1)
     {
-        scanf("%d%d%d%d",&u[i].F,&u[i].S,&v[i].F,&v[i].S);
-        vec.push_back(u[i]);vec.push_back(v[i]);
+        int mid=(l+r)/2;
+        if(C(mid)) r=mid; else l=mid;
     }
-    scanf("%d%d%d%d",&s.F,&s.S,&t.F,&t.S);
-    vec.push_back(s);vec.push_back(t);
-    sort(vec.begin(),vec.end());
-    vec.erase(unique(vec.begin(),vec.end()),vec.end());
-    V=(int)vec.size();
-    int ss=lower_bound(vec.begin(),vec.end(),s)-vec.begin();
-    int tt=lower_bound(vec.begin(),vec.end(),t)-vec.begin();
-    for(auto it:vec)
+    printf("%d\n",r);
+    C(r);
+    for(int i=1;i<=m;i++)
     {
-        if(it==s||it==t) continue;
-        int id=lower_bound(vec.begin(),vec.end(),it)-vec.begin();
-        add_edge(id,id+V,1);
+        for(auto e:G[i])
+        {
+            if(e.cap!=0) continue;
+            if(e.to<m+1||e.to>m+n) continue;
+            if(e.to-m==E[i].F) ans[i]=0; else ans[i]=1;
+        }
     }
-    for(int i=0;i<n;i++)
-    {
-        int uu=lower_bound(vec.begin(),vec.end(),u[i])-vec.begin();
-        int vv=lower_bound(vec.begin(),vec.end(),v[i])-vec.begin();
-        if(u[i]==s) add_edge(uu,vv,INF);
-        else if(v[i]==s) add_edge(vv,uu,INF);
-        else if(u[i]==t) add_edge(vv+V,uu,INF);
-        else if(v[i]==t) add_edge(uu+V,vv,INF);
-        else{add_edge(uu+V,vv,INF); add_edge(vv+V,uu,INF);}
-    }
-    printf("%d\n",max_flow(ss,tt));
+    for(int i=1;i<=m;i++) printf("%d ",ans[i]);
     return 0;
 }
 

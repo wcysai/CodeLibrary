@@ -1,8 +1,8 @@
 /*************************************************************************
-    > File Name: E.cpp
+    > File Name: H.cpp
     > Author: Roundgod
     > Mail: wcysai@foxmail.com 
-    > Created Time: 2018-10-03 15:40:03
+    > Created Time: 2018-10-04 00:55:16
  ************************************************************************/
 
 #pragma GCC optimize(3)
@@ -12,6 +12,8 @@
 #define MOD 1000000007
 #define F first
 #define S second
+#define left fdiafkdo
+#define right adkjoaskdo
 using namespace std;
 typedef long long ll;
 typedef pair<int,int> P;
@@ -78,42 +80,44 @@ int max_flow(int s,int t)
           flow+=f;
     }
 }
-int n;
-vector<P> vec;
-P s,t;
-P u[MAXV],v[MAXV];
+int n,m,a,b;
+char mp[305][305];
+int num[305][305],tot;
+vector<int> left,right;
 int main()
 {
-    scanf("%d",&n);
+    scanf("%d%d%d%d",&n,&m,&a,&b);
     for(int i=0;i<n;i++)
-    {
-        scanf("%d%d%d%d",&u[i].F,&u[i].S,&v[i].F,&v[i].S);
-        vec.push_back(u[i]);vec.push_back(v[i]);
-    }
-    scanf("%d%d%d%d",&s.F,&s.S,&t.F,&t.S);
-    vec.push_back(s);vec.push_back(t);
-    sort(vec.begin(),vec.end());
-    vec.erase(unique(vec.begin(),vec.end()),vec.end());
-    V=(int)vec.size();
-    int ss=lower_bound(vec.begin(),vec.end(),s)-vec.begin();
-    int tt=lower_bound(vec.begin(),vec.end(),t)-vec.begin();
-    for(auto it:vec)
-    {
-        if(it==s||it==t) continue;
-        int id=lower_bound(vec.begin(),vec.end(),it)-vec.begin();
-        add_edge(id,id+V,1);
-    }
+        scanf("%s",mp[i]);
+    int cnt=0;
     for(int i=0;i<n;i++)
-    {
-        int uu=lower_bound(vec.begin(),vec.end(),u[i])-vec.begin();
-        int vv=lower_bound(vec.begin(),vec.end(),v[i])-vec.begin();
-        if(u[i]==s) add_edge(uu,vv,INF);
-        else if(v[i]==s) add_edge(vv,uu,INF);
-        else if(u[i]==t) add_edge(vv+V,uu,INF);
-        else if(v[i]==t) add_edge(uu+V,vv,INF);
-        else{add_edge(uu+V,vv,INF); add_edge(vv+V,uu,INF);}
-    }
-    printf("%d\n",max_flow(ss,tt));
+        for(int j=0;j<m;j++)
+            if(mp[i][j]=='*') cnt++;
+    if(2*b<=a) {printf("%d\n",cnt*b); return 0;}
+    for(int i=0;i<n;i++)
+        for(int j=0;j<m;j++)
+        {
+            if(mp[i][j]=='*')
+            {
+                if((i+j)&1) left.push_back(tot); else right.push_back(tot);
+                num[i][j]=tot;
+                if(i>0&&mp[i-1][j]=='*') 
+                {
+                    if((i+j)&1) add_edge(tot,num[i-1][j],1);
+                    else add_edge(num[i-1][j],tot,1);
+                }
+                if(j>0&&mp[i][j-1]=='*')
+                {
+                    if((i+j)&1) add_edge(tot,num[i][j-1],1);
+                    else add_edge(num[i][j-1],tot,1);
+                }
+                tot++;
+            }
+        }
+    for(auto it:left) add_edge(tot,it,1);
+    for(auto it:right) add_edge(it,tot+1,1);
+    int ans=max_flow(tot,tot+1);
+    printf("%d\n",ans*a+(cnt-2*ans)*b);
     return 0;
 }
 

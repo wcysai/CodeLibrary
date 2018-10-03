@@ -1,8 +1,8 @@
 /*************************************************************************
-    > File Name: E.cpp
+    > File Name: F.cpp
     > Author: Roundgod
     > Mail: wcysai@foxmail.com 
-    > Created Time: 2018-10-03 15:40:03
+    > Created Time: 2018-10-03 20:44:03
  ************************************************************************/
 
 #pragma GCC optimize(3)
@@ -15,6 +15,7 @@
 using namespace std;
 typedef long long ll;
 typedef pair<int,int> P;
+int n,k,a[MAXV];
 struct edge{int to,cap,rev;};
 int V;
 vector<edge> G[MAXV];
@@ -78,42 +79,29 @@ int max_flow(int s,int t)
           flow+=f;
     }
 }
-int n;
-vector<P> vec;
-P s,t;
-P u[MAXV],v[MAXV];
 int main()
 {
     scanf("%d",&n);
-    for(int i=0;i<n;i++)
+    int source=n+1,sink=n+2;
+    int s=0;
+    for(int i=1;i<=n;i++) 
     {
-        scanf("%d%d%d%d",&u[i].F,&u[i].S,&v[i].F,&v[i].S);
-        vec.push_back(u[i]);vec.push_back(v[i]);
+        scanf("%d",&a[i]);
+        if(a[i]>=0) s+=a[i];
     }
-    scanf("%d%d%d%d",&s.F,&s.S,&t.F,&t.S);
-    vec.push_back(s);vec.push_back(t);
-    sort(vec.begin(),vec.end());
-    vec.erase(unique(vec.begin(),vec.end()),vec.end());
-    V=(int)vec.size();
-    int ss=lower_bound(vec.begin(),vec.end(),s)-vec.begin();
-    int tt=lower_bound(vec.begin(),vec.end(),t)-vec.begin();
-    for(auto it:vec)
+    for(int i=1;i<=n;i++)
     {
-        if(it==s||it==t) continue;
-        int id=lower_bound(vec.begin(),vec.end(),it)-vec.begin();
-        add_edge(id,id+V,1);
+        scanf("%d",&k);
+        if(a[i]>=0) add_edge(source,i,a[i]); else add_edge(i,sink,-a[i]);
+        for(int j=0;j<k;j++)
+        {
+            int x;
+            scanf("%d",&x);
+            add_edge(i,x,INF);
+        }
     }
-    for(int i=0;i<n;i++)
-    {
-        int uu=lower_bound(vec.begin(),vec.end(),u[i])-vec.begin();
-        int vv=lower_bound(vec.begin(),vec.end(),v[i])-vec.begin();
-        if(u[i]==s) add_edge(uu,vv,INF);
-        else if(v[i]==s) add_edge(vv,uu,INF);
-        else if(u[i]==t) add_edge(vv+V,uu,INF);
-        else if(v[i]==t) add_edge(uu+V,vv,INF);
-        else{add_edge(uu+V,vv,INF); add_edge(vv+V,uu,INF);}
-    }
-    printf("%d\n",max_flow(ss,tt));
+    s-=max_flow(source,sink);
+    printf("%d\n",s);
     return 0;
 }
 
