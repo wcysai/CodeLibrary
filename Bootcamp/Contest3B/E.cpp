@@ -1,13 +1,13 @@
 /*************************************************************************
-    > File Name: D.cpp
+    > File Name: E.cpp
     > Author: Roundgod
     > Mail: wcysai@foxmail.com 
-    > Created Time: 2018-10-02 06:11:50
+    > Created Time: 2018-10-03 15:40:03
  ************************************************************************/
 
 #pragma GCC optimize(3)
 #include<bits/stdc++.h>
-#define MAXV 200005
+#define MAXV 100005
 #define INF 1000000000
 #define MOD 1000000007
 #define F first
@@ -79,45 +79,40 @@ int max_flow(int s,int t)
     }
 }
 int n;
-char str[MAXV];
-int cnt[26];
-char s[MAXV][2];
-//s:0 t:1 'a'-'z':2-27 
-vector<int> ans[26];
+vector<P> vec;
+P s,t;
+P u[MAXV],v[MAXV];
 int main()
 {
     scanf("%d",&n);
-    for(int i=0;i<n;i++) scanf("%s",s[i]);
-    scanf("%s",str);
-    if(n<(int)strlen(str)) {puts("IMPOSSIBLE"); return 0;}
-    for(int i=0;i<n;i++) cnt[str[i]-'a']++;
-    V=28+n;
-    for(int i=28;i<28+n;i++)
+    for(int i=0;i<n;i++)
     {
-        add_edge(0,i,1);
-        add_edge(i,s[i-28][0]-'a'+2,1);
-        add_edge(i,s[i-28][1]-'a'+2,1);
+        scanf("%d%d%d%d",&u[i].F,&u[i].S,&v[i].F,&v[i].S);
+        vec.push_back(u[i]);vec.push_back(v[i]);
     }
-    for(int i=0;i<26;i++) add_edge(i+2,1,cnt[i]);
-    if(max_flow(0,1)!=(int)strlen(str)) {puts("IMPOSSIBLE"); return 0;}
-    for(int i=28;i<28+n;i++)
-        for(int j=0;j<(int)G[i].size();j++)
-        {
-            edge &e=G[i][j];
-            if(e.to==0) continue;
-            if(e.cap==0) 
-            {
-                if(s[i-28][0]-'a'==e.to-2)ans[e.to-2].push_back(i-27); else ans[e.to-2].push_back(27-i);
-                break;
-            }
-        }
-    int len=strlen(str);
-    for(int i=0;i<len;i++)
+    scanf("%d%d%d%d",&s.F,&s.S,&t.F,&t.S);
+    sort(vec.begin(),vec.end());
+    vec.erase(unique(vec.begin(),vec.end()),vec.end());
+    V=(int)vec.size();
+    int ss=lower_bound(vec.begin(),vec.end(),s)-vec.begin();
+    int tt=lower_bound(vec.begin(),vec.end(),t)-vec.begin();
+    for(auto it:vec)
     {
-        printf("%d",ans[str[i]-'a'].back());
-        ans[str[i]-'a'].pop_back();
-        printf("%c",i==n-1?'\n':' ');
+        if(it==s||it==t) continue;
+        int id=lower_bound(vec.begin(),vec.end(),it)-vec.begin();
+        add_edge(id,id+V,1);
     }
+    for(int i=0;i<n;i++)
+    {
+        int uu=lower_bound(vec.begin(),vec.end(),u[i])-vec.begin();
+        int vv=lower_bound(vec.begin(),vec.end(),v[i])-vec.begin();
+        if(u[i]==s) add_edge(uu,vv,INF);
+        else if(v[i]==s) continue;
+        else if(u[i]==t) continue;
+        else if(v[i]==t) add_edge(uu+V,vv,INF);
+        else{add_edge(uu+V,vv,INF);}
+    }
+    printf("%d\n",max_flow(ss,tt));
     return 0;
 }
 
