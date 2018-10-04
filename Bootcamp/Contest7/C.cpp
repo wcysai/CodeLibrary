@@ -6,8 +6,9 @@
  ************************************************************************/
 
 #pragma GCC optimize(3)
+#include<gmpxx.h>
 #include<bits/stdc++.h>
-#define MODO 1000000007
+#define MODO 998244353
 #define MAXN 100005
 #define INF 1000000000
 #define BASE 19260817
@@ -18,26 +19,26 @@ using namespace std;
 typedef long long ll;
 typedef pair<int,int> P;
 typedef long double db;
-ll n,t,tot;
-multiset<ll> a;
-map<ll,int> mp;
-multiset<ll> cyc[MAXN];
-ll find_hash(multiset<ll> v)
+int n,t,tot;
+multiset<int> a;
+map<int,int> mp;
+multiset<int> cyc[MAXN];
+int find_hash(multiset<int> v)
 {
-    ll cur=0;
-    for(auto it:v) cur=(1LL*cur*BASE+it)%MODO;
+    int cur=0;
+    for(auto it:v) cur=(1LL*cur*BASE+it);
     return cur;
 }
 void hash()
 {
-    ll cur=find_hash(a);
+    int cur=find_hash(a);
     mp[cur]=++tot;
     for(auto it:a) cyc[tot].insert(it);
 }
-void dfs(ll n,ll last)
+void dfs(int n,int last)
 {
     if(n==0) {hash(); return;}
-    for(ll i=last;i<=n;i++)
+    for(int i=last;i<=n;i++)
     {
         a.insert(i);
         dfs(n-i,i);
@@ -46,359 +47,492 @@ void dfs(ll n,ll last)
 }
 int prime[6]={2,3,5,7,11,13};
 //we only need to deal with 2,3,5,7,11,13
-class BigNum {
-public:
-    static const int MOD = 100000000;
-    static const int BIT = 8, SIZE = 105;
-    mutable int n,o;
-    long long u[SIZE];
-    BigNum(){}
-    BigNum(const string& s){
-        memset(this,0,sizeof(BigNum));
-        int num=0,cnt=1;
-        for(int i=s.size()-1;~i;i--){
-            if(s[i]=='-') o^=1;
-            if(s[i]>='0' && s[i]<='9'){
-                num+=(s[i]-'0')*cnt;
-                cnt*=10;
-                if(cnt==MOD) u[n++]=num,num=0,cnt=1;
-            }
-        }
-        if(!n || cnt>=10) u[n++]=num;
-        if(!u[0] && n==1) o=0;
+const int base = 1000000000;
+const int base_digits = 9; 
+struct bigint {
+    vector<int> a;
+    int sign;
+    /*<arpa>*/
+    int size(){
+	if(a.empty())return 0;
+	int ans=(a.size()-1)*base_digits;
+	int ca=a.back();
+	while(ca)
+	    ans++,ca/=10;
+	return ans;
     }
-    BigNum(long long x){
-        memset(this,0,sizeof(BigNum));
-        if(x<0) o=1,x=-x;
-        do u[n++]=x%MOD; while(x/=MOD);
+    bigint operator ^(const bigint &v){
+	bigint ans=1,a=*this,b=v;
+	while(!b.isZero()){
+	    if(b%2)
+		ans*=a;
+	    a*=a,b/=2;
+	}
+	return ans;
     }
-    operator string() const {
-        static char s[SIZE*BIT+10];
-        char* c=s+sprintf(s,"%s%d",o?"-":"",int(u[n-1]));
-        for(int i=n-2;~i;i--) c+=sprintf(c,"%0*d",BIT,int(u[i]));
-        return s;
+    string to_string(){
+	stringstream ss;
+	ss << *this;
+	string s;
+	ss >> s;
+	return s;
     }
-    int operator [](int pos) const {
-        static int e[BIT]={1};
-        for(static int i=1;i<BIT;i++) e[i]=e[i-1]*10;
-        return u[pos/BIT]/e[pos%BIT]%10;
+    int sumof(){
+	string s = to_string();
+	int ans = 0;
+	for(auto c : s)  ans += c - '0';
+	return ans;
     }
-    int length() const {
-        int ret=(n-1)*BIT+1;
-        for(int x=u[n-1]/10;x;x/=10) ret++;
-        return ret;
+    /*</arpa>*/
+    bigint() :
+	sign(1) {
     }
-    friend int cmp(const BigNum& l, const BigNum& r){
-        if(l.o!=r.o) return (l.o?-1:1);
-        if(l.n!=r.n) return (l.o?-1:1)*(l.n-r.n);
-        for(int i=l.n-1;~i;i--) if(l.u[i]-r.u[i])
-                return (l.o?-1:1)*(l.u[i]-r.u[i]);
-        return 0;
+ 
+    bigint(long long v) {
+	*this = v;
     }
-    bool operator < (const BigNum& r) const {return cmp(*this,r)<0;}
-    bool operator > (const BigNum& r) const {return cmp(*this,r)>0;}
-    bool operator <=(const BigNum& r) const {return cmp(*this,r)<=0;}
-    bool operator >=(const BigNum& r) const {return cmp(*this,r)>=0;}
-    bool operator ==(const BigNum& r) const {return cmp(*this,r)==0;}
-    bool operator !=(const BigNum& r) const {return cmp(*this,r)!=0;}
-    BigNum operator +(const BigNum& r) const {return BigNum(*this)+=r;}
-    BigNum operator -(const BigNum& r) const {return BigNum(*this)-=r;}
-    BigNum operator *(int x) const {return BigNum(*this)*=x;}
-    BigNum operator /(int x) const {return BigNum(*this)/=x;}
-    BigNum& operator *=(const BigNum& r){return *this=*this*r;}
-    BigNum& operator /=(const BigNum& r){return *this=*this/r;}
-    BigNum& operator %=(const BigNum& r){return *this=*this%r;}
-    BigNum& operator %=(int x){return *this=*this%x;}
-    BigNum operator -() const {
-        BigNum s=*this;
-        if(s.u[0] || s.n>=2) s.o^=1;
-        return s;
+ 
+    bigint(const string &s) {
+	read(s);
     }
-    BigNum& operator +=(const BigNum& r){
-        if(r.n==1 && !r.u[0]) return *this;
-        if(r.o^o) return r.o^=1,*this-=r,r.o^=1,*this;
-        if(r.n>n) n=r.n;
-        for(int i=0;i<r.n;i++) u[i]+=r.u[i];
-        for(int i=0;i<n;i++) if(u[i]>=MOD) u[i+1]++,u[i]-=MOD;
-        if(u[n]) n++;
-        return *this;
+ 
+    void operator=(const bigint &v) {
+	sign = v.sign;
+	a = v.a;
     }
-    BigNum& operator -=(const BigNum& r){
-        if(r.n==1 && !r.u[0]) return *this;
-        if(r.o^o) return r.o^=1,*this+=r,r.o^=1,*this;
-        if(cmp(*this,r)*(r.o?-1:1)<0){
-            o^=1,n=r.n;
-            for(int i=0;i<r.n;i++) u[i]=r.u[i]-u[i];
-        }else{
-            for(int i=0;i<r.n;i++) u[i]=u[i]-r.u[i];
-        }
-        for(int i=0;i<n;i++) if(u[i]<0) u[i+1]--,u[i]+=MOD;
-        while(!u[n-1] && n>=2) --n;
-        if(!u[0] && n==1) o=0;
-        return *this;
+ 
+    void operator=(long long v) {
+	sign = 1;
+	a.clear();
+	if (v < 0)
+	    sign = -1, v = -v;
+	for (; v > 0; v = v / base)
+	    a.push_back(v % base);
     }
-    BigNum operator *(const BigNum& r) const {
-        BigNum s=0;
-        if(!u[n-1] || !r.u[r.n-1]) return s;
-        s.n=r.n+n-1;
-        s.o=r.o^o;
-        for(int i=0;i<n;i++) for(int j=0;j<r.n;j++)
-            s.u[i+j]+=u[i]*r.u[j];
-        for(int i=0;i<s.n;i++) if(s.u[i]>=MOD){
-            s.u[i+1]+=s.u[i]/MOD;
-            s.u[i]%=MOD;
-            if(i==s.n-1) s.n++;
-        }
-        return s;
+ 
+    bigint operator+(const bigint &v) const {
+	if (sign == v.sign) {
+	    bigint res = v;
+ 
+	    for (int i = 0, carry = 0; i < (int) max(a.size(), v.a.size()) || carry; ++i) {
+		if (i == (int) res.a.size())
+		    res.a.push_back(0);
+		res.a[i] += carry + (i < (int) a.size() ? a[i] : 0);
+		carry = res.a[i] >= base;
+		if (carry)
+		    res.a[i] -= base;
+	    }
+	    return res;
+	}
+	return *this - (-v);
     }
-    BigNum operator /(const BigNum& r) const {
-        BigNum e[35],s=0,c=0;
-        int m=0,ro=r.o,lo=o;
-        r.o^=ro,o^=lo;
-        for(e[m]=r;MOD>>++m;e[m]=e[m-1]+e[m-1]);
-        for(int i=n-1;~i;i--){
-            int tag=0;
-            (s*=MOD)+=u[i];
-            for(int x=m-1;~x;x--) if(s>=e[x]) s-=e[x],tag|=1<<x;
-            (c*=MOD)+=tag;
-        }
-        r.o^=ro,o^=lo;
-        if(c.u[0] || c.n>=2) c.o=r.o^o;
-        return c;
+ 
+    bigint operator-(const bigint &v) const {
+	if (sign == v.sign) {
+	    if (abs() >= v.abs()) {
+		bigint res = *this;
+		for (int i = 0, carry = 0; i < (int) v.a.size() || carry; ++i) {
+		    res.a[i] -= carry + (i < (int) v.a.size() ? v.a[i] : 0);
+		    carry = res.a[i] < 0;
+		    if (carry)
+			res.a[i] += base;
+		}
+		res.trim();
+		return res;
+	    }
+	    return -(v - *this);
+	}
+	return *this + (-v);
     }
-    BigNum operator %(const BigNum& r) const {
-        BigNum e[35],s=0;
-        int m=0,ro=r.o,lo=o;
-        r.o^=ro,o^=lo;
-        for(e[m]=r;MOD>>++m;e[m]=e[m-1]+e[m-1]);
-        for(int i=n-1;~i;i--){
-            (s*=MOD)+=u[i];
-            for(int x=m-1;~x;x--) if(s>=e[x]) s-=e[x];
-        }
-        r.o^=ro,o^=lo;
-        if(s.u[0] || s.n>=2) s.o=o;
-        return s;
+ 
+    void operator*=(int v) {
+	if (v < 0)
+	    sign = -sign, v = -v;
+	for (int i = 0, carry = 0; i < (int) a.size() || carry; ++i) {
+	    if (i == (int) a.size())
+		a.push_back(0);
+	    long long cur = a[i] * (long long) v + carry;
+	    carry = (int) (cur / base);
+	    a[i] = (int) (cur % base);
+	    //asm("divl %%ecx" : "=a"(carry), "=d"(a[i]) : "A"(cur), "c"(base));
+	}
+	trim();
     }
-    BigNum& operator *=(int x){
-        if(!x) return *this=0;
-        if(x<0) o^=1,x=-x;
-        for(int i=0;i<n;i++) u[i]*=x;
-        for(int i=0;i<n;i++) if(u[i]>=MOD){
-            u[i+1]+=u[i]/MOD;
-            u[i]%=MOD;
-            if(i==n-1) n++;
-        }
-        if(!u[0] && n==1) o=0;
-        return *this;
+ 
+    bigint operator*(int v) const {
+	bigint res = *this;
+	res *= v;
+	return res;
     }
-    BigNum& operator /=(int x){
-        if(x<0) o^=1,x=-x;
-        for(int i=n-1;i;u[i--]/=x) u[i-1]+=u[i]%x*MOD;
-        for(u[0]/=x;n>=2;n--) if(u[n-1]) break;
-        if(!u[0] && n==1) o=0;
-        return *this;
+ 
+    void operator*=(long long v) {
+	if (v < 0)
+	    sign = -sign, v = -v;
+	for (int i = 0, carry = 0; i < (int) a.size() || carry; ++i) {
+	    if (i == (int) a.size())
+		a.push_back(0);
+	    long long cur = a[i] * (long long) v + carry;
+	    carry = (int) (cur / base);
+	    a[i] = (int) (cur % base);
+	    //asm("divl %%ecx" : "=a"(carry), "=d"(a[i]) : "A"(cur), "c"(base));
+	}
+	trim();
     }
-    int operator %(int x) const {
-        long long c=0;
-        for(int i=n-1;~i;i--) c=(c*MOD+u[i])%x;
-        return (1-o-o)*int(c);
+ 
+    bigint operator*(long long v) const {
+	bigint res = *this;
+	res *= v;
+	return res;
     }
-    void print()
-    {
-        int len=length();
-        bool zero=true;
-        for(int i=len-1;i>=0;i--)
-        {
-            if(u[i]!=0) zero=false;
-            if(!zero) printf("%lld",u[i]);
-        }
+ 
+    friend pair<bigint, bigint> divmod(const bigint &a1, const bigint &b1) {
+	int norm = base / (b1.a.back() + 1);
+	bigint a = a1.abs() * norm;
+	bigint b = b1.abs() * norm;
+	bigint q, r;
+	q.a.resize(a.a.size());
+ 
+	for (int i = a.a.size() - 1; i >= 0; i--) {
+	    r *= base;
+	    r += a.a[i];
+	    int s1 = r.a.size() <= b.a.size() ? 0 : r.a[b.a.size()];
+	    int s2 = r.a.size() <= b.a.size() - 1 ? 0 : r.a[b.a.size() - 1];
+	    int d = ((long long) base * s1 + s2) / b.a.back();
+	    r -= b * d;
+	    while (r < 0)
+		r += b, --d;
+	    q.a[i] = d;
+	}
+ 
+	q.sign = a1.sign * b1.sign;
+	r.sign = a1.sign;
+	q.trim();
+	r.trim();
+	return make_pair(q, r / norm);
+    }
+ 
+    bigint operator/(const bigint &v) const {
+	return divmod(*this, v).first;
+    }
+ 
+    bigint operator%(const bigint &v) const {
+	return divmod(*this, v).second;
+    }
+ 
+    void operator/=(int v) {
+	if (v < 0)
+	    sign = -sign, v = -v;
+	for (int i = (int) a.size() - 1, rem = 0; i >= 0; --i) {
+	    long long cur = a[i] + rem * (long long) base;
+	    a[i] = (int) (cur / v);
+	    rem = (int) (cur % v);
+	}
+	trim();
+    }
+ 
+    bigint operator/(int v) const {
+	bigint res = *this;
+	res /= v;
+	return res;
+    }
+ 
+    int operator%(int v) const {
+	if (v < 0)
+	    v = -v;
+	int m = 0;
+	for (int i = a.size() - 1; i >= 0; --i)
+	    m = (a[i] + m * (long long) base) % v;
+	return m * sign;
+    }
+ 
+    void operator+=(const bigint &v) {
+	*this = *this + v;
+    }
+    void operator-=(const bigint &v) {
+	*this = *this - v;
+    }
+    void operator*=(const bigint &v) {
+	*this = *this * v;
+    }
+    void operator/=(const bigint &v) {
+	*this = *this / v;
+    }
+ 
+    bool operator<(const bigint &v) const {
+	if (sign != v.sign)
+	    return sign < v.sign;
+	if (a.size() != v.a.size())
+	    return a.size() * sign < v.a.size() * v.sign;
+	for (int i = a.size() - 1; i >= 0; i--)
+	    if (a[i] != v.a[i])
+		return a[i] * sign < v.a[i] * sign;
+	return false;
+    }
+ 
+    bool operator>(const bigint &v) const {
+	return v < *this;
+    }
+    bool operator<=(const bigint &v) const {
+	return !(v < *this);
+    }
+    bool operator>=(const bigint &v) const {
+	return !(*this < v);
+    }
+    bool operator==(const bigint &v) const {
+	return !(*this < v) && !(v < *this);
+    }
+    bool operator!=(const bigint &v) const {
+	return *this < v || v < *this;
+    }
+ 
+    void trim() {
+	while (!a.empty() && !a.back())
+	    a.pop_back();
+	if (a.empty())
+	    sign = 1;
+    }
+ 
+    bool isZero() const {
+	return a.empty() || (a.size() == 1 && !a[0]);
+    }
+ 
+    bigint operator-() const {
+	bigint res = *this;
+	res.sign = -sign;
+	return res;
+    }
+ 
+    bigint abs() const {
+	bigint res = *this;
+	res.sign *= res.sign;
+	return res;
+    }
+ 
+    long long longValue() const {
+	long long res = 0;
+	for (int i = a.size() - 1; i >= 0; i--)
+	    res = res * base + a[i];
+	return res * sign;
+    }
+ 
+    friend bigint gcd(const bigint &a, const bigint &b) {
+	return b.isZero() ? a : gcd(b, a % b);
+    }
+    friend bigint lcm(const bigint &a, const bigint &b) {
+	return a / gcd(a, b) * b;
+    }
+ 
+    void read(const string &s) {
+	sign = 1;
+	a.clear();
+	int pos = 0;
+	while (pos < (int) s.size() && (s[pos] == '-' || s[pos] == '+')) {
+	    if (s[pos] == '-')
+		sign = -sign;
+	    ++pos;
+	}
+	for (int i = s.size() - 1; i >= pos; i -= base_digits) {
+	    int x = 0;
+	    for (int j = max(pos, i - base_digits + 1); j <= i; j++)
+		x = x * 10 + s[j] - '0';
+	    a.push_back(x);
+	}
+	trim();
+    }
+ 
+    friend istream& operator>>(istream &stream, bigint &v) {
+	string s;
+	stream >> s;
+	v.read(s);
+	return stream;
+    }
+ 
+    friend ostream& operator<<(ostream &stream, const bigint &v) {
+	if (v.sign == -1)
+	    stream << '-';
+	stream << (v.a.empty() ? 0 : v.a.back());
+	for (int i = (int) v.a.size() - 2; i >= 0; --i)
+	    stream << setw(base_digits) << setfill('0') << v.a[i];
+	return stream;
+    }
+ 
+    static vector<int> convert_base(const vector<int> &a, int old_digits, int new_digits) {
+	vector<long long> p(max(old_digits, new_digits) + 1);
+	p[0] = 1;
+	for (int i = 1; i < (int) p.size(); i++)
+	    p[i] = p[i - 1] * 10;
+	vector<int> res;
+	long long cur = 0;
+	int cur_digits = 0;
+	for (int i = 0; i < (int) a.size(); i++) {
+	    cur += a[i] * p[cur_digits];
+	    cur_digits += old_digits;
+	    while (cur_digits >= new_digits) {
+		res.push_back(int(cur % p[new_digits]));
+		cur /= p[new_digits];
+		cur_digits -= new_digits;
+	    }
+	}
+	res.push_back((int) cur);
+	while (!res.empty() && !res.back())
+	    res.pop_back();
+	return res;
+    }
+ 
+    typedef vector<long long> vint;
+ 
+    static vint karatsubaMultiply(const vint &a, const vint &b) {
+	int n = a.size();
+	vint res(n + n);
+	if (n <= 32) {
+	    for (int i = 0; i < n; i++)
+		for (int j = 0; j < n; j++)
+		    res[i + j] += a[i] * b[j];
+	    return res;
+	}
+ 
+	int k = n >> 1;
+	vint a1(a.begin(), a.begin() + k);
+	vint a2(a.begin() + k, a.end());
+	vint b1(b.begin(), b.begin() + k);
+	vint b2(b.begin() + k, b.end());
+ 
+	vint a1b1 = karatsubaMultiply(a1, b1);
+	vint a2b2 = karatsubaMultiply(a2, b2);
+ 
+	for (int i = 0; i < k; i++)
+	    a2[i] += a1[i];
+	for (int i = 0; i < k; i++)
+	    b2[i] += b1[i];
+ 
+	vint r = karatsubaMultiply(a2, b2);
+	for (int i = 0; i < (int) a1b1.size(); i++)
+	    r[i] -= a1b1[i];
+	for (int i = 0; i < (int) a2b2.size(); i++)
+	    r[i] -= a2b2[i];
+ 
+	for (int i = 0; i < (int) r.size(); i++)
+	    res[i + k] += r[i];
+	for (int i = 0; i < (int) a1b1.size(); i++)
+	    res[i] += a1b1[i];
+	for (int i = 0; i < (int) a2b2.size(); i++)
+	    res[i + n] += a2b2[i];
+	return res;
+    }
+ 
+    bigint operator*(const bigint &v) const {
+	vector<int> a6 = convert_base(this->a, base_digits, 6);
+	vector<int> b6 = convert_base(v.a, base_digits, 6);
+	vint a(a6.begin(), a6.end());
+	vint b(b6.begin(), b6.end());
+	while (a.size() < b.size())
+	    a.push_back(0);
+	while (b.size() < a.size())
+	    b.push_back(0);
+	while (a.size() & (a.size() - 1))
+	    a.push_back(0), b.push_back(0);
+	vint c = karatsubaMultiply(a, b);
+	bigint res;
+	res.sign = sign * v.sign;
+	for (int i = 0, carry = 0; i < (int) c.size(); i++) {
+	    long long cur = c[i] + carry;
+	    res.a.push_back((int) (cur % 1000000));
+	    carry = (int) (cur / 1000000);
+	}
+	res.a = convert_base(res.a, 6, base_digits);
+	res.trim();
+	return res;
     }
 };
-struct frac
-{
-    bool iszero;
-    int p[6],q[6];
-    void clear() {iszero=true; }
-    frac(){}
-    frac(int _p,int _q)
-    {
-        assert(_q!=0);
-        if(_p==0) {iszero=true;}
-        else
-        {
-            memset(p,0,sizeof(p));memset(q,0,sizeof(q));
-            iszero=false;
-            for(int i=0;i<6;i++)
-                while(_p%prime[i]==0) {_p=_p/prime[i]; p[i]++;}
-            for(int i=0;i<6;i++)
-                while(_q%prime[i]==0) {_q=_q/prime[i]; q[i]++;}
-        }
-    }
-    void norm()
-    {
-        if(!iszero)
-        {
-            for(int i=0;i<6;i++)
-            {
-                int x=min(p[i],q[i]);
-                p[i]-=x;q[i]-=x;
-            }
-        }
-    }
-    frac operator+(frac y) 
-    {
-        frac tmp;
-        if(iszero) {tmp=y; return tmp;}
-        else if(y.iszero) return *this;
-        tmp.iszero=false;
-        BigNum l=1,r=1;
-        for(int i=0;i<6;i++)
-        {
-            int need=max(q[i],y.q[i]);
-            p[i]+=need-q[i];y.p[i]+=need-y.q[i];
-            tmp.q[i]=need;
-        }
-        for(int i=0;i<6;i++)
-        {
-            int x=min(p[i],y.p[i]);
-            for(int j=0;j<p[i]-x;j++)
-                l=l*prime[i];
-            for(int j=0;j<y.p[i]-x;j++)
-                r=r*prime[i];
-            tmp.p[i]=x;
-        }
-        l=l+r;
-        //l.print();printf("\n");
-        for(int i=0;i<6;i++)
-            while(l%prime[i]==0) l=l/prime[i],tmp.p[i]++;
-        return tmp;
-    }
-    frac operator*(frac y) 
-    {
-        frac tmp;
-        if(iszero||y.iszero) {tmp.iszero=true; return tmp;}
-        tmp.iszero=false;
-        for(int i=0;i<6;i++)
-        {
-            tmp.p[i]=p[i]+y.p[i];
-            tmp.q[i]=q[i]+y.q[i];
-        }
-        return tmp;
-    }
-    void print()
-    {
-        if(iszero) {printf("0/1"); return;}
-        BigNum l=1,r=1;
-        for(int i=0;i<6;i++)
-            for(int j=0;j<p[i];j++) 
-                l=l*prime[i];
-        l.print();
-        printf("/");
-        for(int i=0;i<6;i++)
-            for(int j=0;j<q[i];j++)
-                r=r*prime[i];
-        r.print();
-    }
-}dp[305][140];
-frac trans[140][140];
+bigint dp[15][305][140];
+bool btrans[15];
+int trans[15][140][140];
+int primes[6]={2,3,5,7,11,13};
+int perm[15];
+int stot[15];
+bool used[15];
+int bdp[15];
 int main()
 {
-    while(scanf("%lld%lld",&n,&t)==2)
+    for(int i=1;i<=14;i++) dp[i][0][1]=1;
+    memset(btrans,false,sizeof(btrans));
+    while(scanf("%d%d",&n,&t)==2)
     {
         if(!n&&!t) break;
-        mp.clear();a.clear();
-        tot=0;
-        dfs(n,1);
-        for(ll i=0;i<=t;i++) 
-            for(ll j=1;j<=tot;j++) 
-                dp[i][j].clear();
-        for(ll i=1;i<=tot;i++)
-            for(ll j=1;j<=tot;j++)
-                trans[i][j].clear();
-        for(ll i=1;i<=tot;i++)
+        if(!btrans[n])
         {
-            for(auto j=cyc[i].begin();j!=cyc[i].end();j++)
+            mp.clear();a.clear();
+            tot=0;
+            dfs(n,1);
+            for(int i=1;i<=tot;i++)
+                for(int j=1;j<=tot;j++)
+                    trans[n][i][j]=0;
+            for(int i=1;i<=tot;i++)
             {
-                auto k=j;k++;
-                for(;k!=cyc[i].end();k++)
+                multiset<int> ms;
+                int tt=1;
+                for(auto it:cyc[i])
                 {
-                    multiset<ll> dummy(cyc[i]);
-                    frac coef((*j)*(*k)*2,n*n);coef.norm();
-                    dummy.erase(dummy.find(*j));dummy.erase(dummy.find(*k));
-                    dummy.insert((*j)+(*k));
-                    ll num=mp[find_hash(dummy)];
-                    trans[i][num]=(trans[i][num]+coef);trans[i][num].norm();
+                     for(int j=1;j<=it-1;j++)
+                     perm[tt+j-1]=tt+j;
+                    perm[tt+it-1]=tt;
+                    tt+=it;
                 }
+                for(int j=1;j<=n;j++)
+                    for(int k=1;k<=n;k++)
+                    {
+                        swap(perm[j],perm[k]);
+                        memset(used,false,sizeof(used));
+                        ms.clear();
+                        for(int l=1;l<=n;l++)
+                        {
+                            if(used[l]) continue;
+                            int cnt=0,now=l;
+                            do
+                            {
+                                used[now]=true;
+                                cnt++;
+                                now=perm[now];
+                            }while(!used[now]);
+                            ms.insert(cnt);
+                        }
+                        int num=mp[find_hash(ms)];
+                        trans[n][i][num]++;
+                        swap(perm[j],perm[k]);
+                    }
             }
-            for(auto j=cyc[i].begin();j!=cyc[i].end();j++)
-            {
-                for(ll k=1;k*2<(*j);k++)
-                {
-                    multiset<ll> dummy(cyc[i]);
-                    frac coef((*j)*2,n*n);coef.norm();
-                    dummy.erase(dummy.find(*j));
-                    dummy.insert(k);dummy.insert((*j)-k);ll num=mp[find_hash(dummy)];
-                    trans[i][num]=(trans[i][num]+coef);
-                }
-                if((*j)%2==0)
-                {
-                    multiset<ll> dummy(cyc[i]);
-                    frac coef((*j),n*n);coef.norm();
-                    dummy.erase(dummy.find(*j));dummy.insert((*j)/2);dummy.insert((*j)/2);
-                    ll num=mp[find_hash(dummy)];
-                    trans[i][num]=(trans[i][num]+coef);
-                }
-            }
-            trans[i][i]=frac(1,n);
+            btrans[n]=true;
+            stot[n]=tot;
         }
-        for(int i=1;i<=tot;i++)
+        //puts("done");
+        tot=stot[n];
+        for(int i=bdp[n];i<t;i++)
         {
             for(int j=1;j<=tot;j++)
             {
-                trans[i][j].print();
-                printf(" ");
-            }
-            printf("\n");
-        }
-        dp[0][1]=frac(1,1);
-        puts("");
-        for(int i=0;i<=t;i++)
-        {
-            for(int j=1;j<=tot;j++)
-            {
-                dp[i][j].print();
-                printf(" ");
-            }
-            printf("\n");
-        }
-        for(ll i=0;i<t;i++)
-        {
-            for(ll j=1;j<=tot;j++)
-            {
-                if(dp[i][j].iszero) continue;
-                for(ll k=1;k<=tot;k++)
+                if(dp[n][i][j]==0) continue;
+                for(int k=1;k<=tot;k++)
                 {
-                    frac tmp=dp[i][j];tmp=tmp*trans[j][k];tmp.norm();
-                    //tmp.print();printf(" ");dp[i+1][k].print();printf(" ");
-                    dp[i+1][k]=dp[i+1][k]+tmp;dp[i+1][k].norm();
-                    //dp[i+1][k].print();printf("\n");
+                    if(trans[n][j][k]==0) continue;
+                    bigint tmp=dp[n][i][j]*trans[n][j][k];
+                    dp[n][i+1][k]+=tmp;
                 }
             }
         }
-        puts("");
-        for(int i=0;i<=t;i++)
+        bdp[n]=max(bdp[n],t);
+        for(int i=1;i<=n;i++) printf("%d%c",i,i==n?'\n':' ');
+        bigint p=dp[n][t][1],q=1;
+        for(int i=0;i<2*t;i++) q=q*n;
+        for(int i=0;i<6;i++)
         {
-            for(int j=1;j<=tot;j++)
+            while(p%prime[i]==0&&q%prime[i]==0)
             {
-                dp[i][j].print();
-                printf(" ");
+                p=p/prime[i];
+                q=q/prime[i];
             }
-            printf("\n");
         }
-        for(ll i=1;i<=n;i++) printf("%lld%c",i,i==n?'\n':' ');
-        dp[t][1].norm();
-        dp[t][1].print();
-        for(ll i=1;i<=tot;i++) cyc[i].clear();
+        cout<<p<<'/'<<q<<endl;
+        for(int i=1;i<=tot;i++) cyc[i].clear();
     }
     return 0;
 }
