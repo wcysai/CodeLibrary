@@ -8,39 +8,40 @@
 #pragma GCC optimize(3)
 #include<bits/stdc++.h>
 #define MAXN 800
-#define INF 1000000000
+#define INF 1000000000000000000LL
 #define MOD 1000000007
 #define F first
 #define S second
+#define next daijosakd
 using namespace std;
 typedef long long ll;
 typedef pair<int,int> P;
 ll n,a[MAXN],sum[MAXN];
-ll dp[MAXN][MAXN];
+ll dp[2][MAXN][MAXN];// dp[i][j][k]: i leaf nodes, j last,k penultimate
 int main()
 {
     scanf("%lld",&n);
     for(ll i=1;i<=n;i++) scanf("%lld",&a[i]);
-    if(n==2) {printf("%lld\n",a[1]); return 0;}
+    if(n==1) {printf("%lld\n",a[1]); return 0;}
     sort(a+1,a+n+1);
-    for(ll i=1;i<=n;i++) sum[i]=sum[i-1]+a[i];
-    for(ll i=1;i<=n-1;i++) dp[i][i+1]=2*a[i]+a[i+1];
-    for(ll d=3;d<=n;d++)
+    for(ll i=1;i<=n;i++) a[i]+=a[i-1];
+    for(ll i=0;i<=n;i++) for(ll j=0;j<=n;j++) dp[0][i][j]=INF;
+    dp[0][1][0]=0;
+    for(ll i=0;i<=n-1;i++)
     {
-        for(ll i=1;i+d-1<=n;i++)
-        {
-            ll j=i+d-1;
-            dp[i][j]=INF;
-            for(ll k=i;k<j;k++)
-            {
-                if(2*(sum[k]-sum[i-1])+sum[j]-sum[k]+dp[i][k]+dp[k+1][j]<dp[i][j])
+        ll now=i&1,next=now^1;
+        for(ll j=0;j<=n-i-1;j++)
+            for(ll k=0;k<=n-i-j-1;k++)
+                dp[next][j][k]=INF;
+        for(ll j=0;j<=n-i;j++)
+            for(ll k=0;k<=n-i-j;k++)
+                if(dp[now][j][k]!=INF)
                 {
-                    dp[i][j]=2*(sum[k]-sum[i-1])+sum[j]-sum[k]+dp[i][k]+dp[k+1][j];
+                    if(j) dp[next][j-1][k]=min(dp[next][j-1][k],dp[now][j][k]);
+                    if(j+k) dp[now][j+k][j]=min(dp[now][j+k][j],dp[now][j][k]+a[n-i]);
                 }
-            }
-        }
     }
-    printf("%lld\n",dp[1][n]);
+    printf("%lld\n",dp[n&1][0][0]);
     return 0;
 }
 
