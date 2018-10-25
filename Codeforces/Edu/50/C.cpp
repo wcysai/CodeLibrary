@@ -2,12 +2,12 @@
     > File Name: C.cpp
     > Author: Roundgod
     > Mail: wcysai@foxmail.com 
-    > Created Time: 2018-09-07 22:42:33
+    > Created Time: 2018-10-11 22:53:16
  ************************************************************************/
 
 #pragma GCC optimize(3)
 #include<bits/stdc++.h>
-#define MAXN 100005
+#define MAXN 200005
 #define INF 1000000000
 #define MOD 1000000007
 #define F first
@@ -15,35 +15,30 @@
 using namespace std;
 typedef long long ll;
 typedef pair<int,int> P;
-ll q,n,k,a[20];
-ll dp[20][5][2];
-ll solve(ll now,ll cnt,ll equal)
-{
-    if(cnt>3) return 0;
-    if(now==0) return 1;
-    if(dp[now][cnt][equal]!=-1) return dp[now][cnt][equal];
-    ll lim=equal?a[now]:9;
-    ll ans=0;
-    for(ll i=0;i<=lim;i++)
-        ans+=solve(now-1,cnt+(i!=0),equal&&(a[now]==i));
-    return dp[now][cnt][equal]=ans;
-}
-ll calc(ll n)
-{
-    ll t=0;
-    memset(dp,-1,sizeof(dp));
-    while(n) {t++; a[t]=n%10; n/=10;}
-    return solve(t,0,1);
-}
+ll n,k,h[MAXN],sum[MAXN],cnt[MAXN];
 int main()
 {
-    scanf("%lld",&q);
-    while(q--)
+    scanf("%lld%lld",&n,&k);
+    ll minx=INF,mx=0;
+    for(ll i=1;i<=n;i++) {scanf("%lld",&h[i]); minx=min(minx,h[i]); mx=max(mx,h[i]); cnt[h[i]]++;}
+    ll now=0;
+    for(ll i=200000;i>=1;i--)
     {
-        ll l,r;
-        scanf("%lld%lld",&l,&r);
-        printf("%lld\n",calc(r)-calc(l-1));
+        now+=cnt[i];
+        sum[i]=sum[i+1]+now;
     }
+    ll cur=mx,ans=0;
+    while(cur>minx)
+    {
+        ll l=1,r=cur;
+        while(r-l>1)
+        {
+            ll mid=(l+r)/2;
+            if(sum[cur-mid+1]-sum[cur+1]<=k) l=mid; else r=mid;
+        }
+        cur-=l;ans++;
+    }
+    printf("%lld\n",ans);
     return 0;
 }
 
