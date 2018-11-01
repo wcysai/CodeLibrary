@@ -7,7 +7,7 @@
 
 #pragma GCC optimize(3)
 #include<bits/stdc++.h>
-#define MAXN 100005
+#define MAXN 1000005
 #define INF 1000000000
 #define MOD 1000000007
 #define F first
@@ -16,20 +16,42 @@ using namespace std;
 typedef long long ll;
 typedef pair<int,int> P;
 int T,n,k,a[MAXN];
+int fact[MAXN],invf[MAXN];
 int pow_mod(int a,int i)
 {
     int s=1;
     while(i)
+    {
+        if(i&1) s=1LL*s*a%MOD;
+        a=1LL*a*a%MOD;
+        i>>=1;
+    }
+    return s;
+}
+int comb(int n,int k)
+{
+    return 1LL*fact[n]*invf[k]%MOD*invf[n-k]%MOD;
 }
 int main()
 {
-    f[1][1]=1;
-    for(int i=2;i<=100;i++)
+    fact[0]=invf[0]=1;
+    for(int i=1;i<=1000001;i++) fact[i]=1LL*fact[i-1]*i%MOD;
+    invf[1000001]=pow_mod(fact[1000001],MOD-2);
+    for(int i=1000000;i>=1;i--) invf[i]=1LL*invf[i+1]*(i+1)%MOD;
+    scanf("%d",&T);
+    while(T--)
     {
-        f[i][1]=f[i][i]=i;
-        for(int j=2;j<=i-1;j++) f[i][j]=f[i-1][j]+f[i-1][j-1]+1;
+        scanf("%d",&n);
+        for(int i=1;i<=n;i++) scanf("%d",&a[i]);
+        int ans=0;
+        for(int i=1;i<=n;i++) 
+        {
+            ans=(ans+1LL*a[i]*(comb(n+1,i)-1))%MOD;
+            if(ans<0) ans+=MOD;
+        }
+        if(ans<0) ans+=MOD;
+        printf("%d\n",ans);
     }
-    for(int i=1;i<=10;i++) printf("%d ",f[10][i]);
     return 0;
 }
 
