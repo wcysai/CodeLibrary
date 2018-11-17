@@ -26,7 +26,9 @@ vector<int> G[MAXN];
 vector<int> rG[MAXN];
 vector<int> vs;
 bool used[MAXN];
+int u[MAXM],v[MAXM];
 int cmp[MAXN];
+ll ans[MAXM],delta;
 void add_edge(int from,int to)
 {
     G[from].push_back(to);
@@ -46,38 +48,15 @@ void rdfs(int v,int k)
     for(int i=0;i<(int)rG[v].size();i++)
         if(!used[rG[v][i]]) rdfs(rG[v][i],k);
 }
-int scc()
+void scc()
 {
-    for(auto v:nodes) used[v]=false;
     vs.clear();
     for(auto v:nodes) if(!used[v]) dfs(v);
-    int k=0;
     for(auto v:nodes) used[v]=false;
-    for(int i=vs.size()-1;i>=0;i--) if(!used[vs[i]]) rdfs(vs[i],k++);
-    return k;
-}
-vector<edge> E;
-vector<edge> cont[MAXM];
-void solve(vector<edge> &E,int l,int r)
-{
-    if(!E.size()) return;
-    if(l==r)
+    for(int i=vs.size()-1;i>=0;i--) 
     {
-        for(auto it:E) cont[l].push_back(it);
-        return;
+        if(!used[vs[i]]) rdfs(vs[i],vs[i]);
     }
-    int mid=(l+r)/2;
-    nodes.clear();
-    vector<edge> used;used.clear();
-    vector<edge> lhs,rhs;lhs.clear();rhs.clear();
-    for(auto it:E) if(it.t<=mid) used.push_back(it); else rhs.push_back(it);
-    for(auto it:used) {nodes.push_back(it.u); nodes.push_back(it.v);}
-    sort(nodes.begin(),nodes.end());nodes.erase(unique(nodes.begin(),nodes.end()),nodes.end());
-    for(auto it:nodes) {G[it].clear(); rG[it].clear();}
-    for(auto it:used) add_edge(it.u,it.v);
-    scc(); 
-    for(auto it:used) {if(cmp[it.u]==cmp[it.v]) lhs.push_back(it); else rhs.push_back(it);}
-    solve(lhs,l,mid);solve(rhs,mid+1,r);
 }
 int p[MAXN],r[MAXN],sz[MAXN];
 void init(int n)
@@ -99,6 +78,7 @@ void unite(int x,int y)
     x=find(x);
     y=find(y);
     if(x==y) return;
+    delta+=1LL*sz[x]*sz[y];
     if(r[x]<r[y]) {p[x]=y; sz[y]+=sz[x];}
     else
     {
@@ -111,23 +91,69 @@ bool same(int x,int y)
 {
     return find(x)==find(y);
 }
+vector<int> E;
+vector<int> cont[MAXM];
+int col[MAXN],tot;
+void solve(vector<int> &E,int l,int r)
+{
+    /*printf("%d %d:",l,r);
+    for(auto it:E) printf("%d ",it.t);
+    puts("");*/
+    tot++;
+    int mid=(l+r)/2;
+    nodes.clear();
+    vector<int> lhs,rhs;lhs.clear();rhs.clear();
+    for(auto it:E) 
+    {
+        if(it<=mid) 
+        {
+            int x=find(u[it]),y=find(v[it]);
+            if(col[x]!=tot)
+            {
+                col[x]=tot;
+                G[x].clear();rG[x].clear();
+                used[x]=false; 
+                nodes.push_back(x);
+            }
+            if(col[y]!=tot)
+            {
+                col[y]=tot;
+                G[y].clear();rG[y].clear();
+                used[y]=false; 
+                nodes.push_back(y);
+            }
+            add_edge(x,y);
+        }
+    }
+    scc();
+    if(l==r)
+    {
+        delta=0;
+        for(auto it:nodes) unite(find(it),find(cmp[it]));
+        ans[l]=ans[l-1]+delta;
+    }
+    else
+    {
+        for(auto it:E)
+        {
+            int x=find(u[it]),y=find(v[it]);
+            if(col[x]==tot&&col[y]==tot&&cmp[x]==cmp[y]) lhs.push_back(it); else rhs.push_back(it);
+        }
+        solve(lhs,l,mid);solve(rhs,mid+1,r);
+    }
+}
 int main()
 {
     scanf("%d%d",&n,&m);
     for(int i=1;i<=m;i++)
     {
-        edge e;e.t=i;
-        scanf("%d%d",&e.u,&e.v);E.push_back(e);
+        scanf("%d%d",&u[i],&v[i]);
+        E.push_back(i);
     }
-    solve(E,1,m+1);
     init(n);
-    ll ans=0;
-    for(int i=1;i<=m;i++)
-    {
-        for(auto it:cont[i]) 
-            if(!same(it.u,it.v)) {ans+=1LL*sz[find(it.u)]*sz[find(it.v)]; unite(it.u,it.v);}
-        printf("%lld\n",ans);
-    }
+    tot=0;
+    solve(E,1,m); 
+    for(int i=1;i<=m;i++) printf("%lld\n",ans[i]);
     return 0;
 }
 
