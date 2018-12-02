@@ -1,0 +1,2 @@
+#include<stdio.h>
+char r[]="#include<stdio.h>%cchar r[]=%c%s%c;void rev(char*);int main(){int n;scanf(%c%cd%c,&n);if(n<0){rev(r);n*=-1;}while(n--)printf(r,10,34,r,34,34,37,34,10);return 0;}void rev(char *p){int l=245,i=0;char t;for(i=0;i<l;i++,l--){t=p[i];p[i]=p[l];p[l]=t;}}%c";void rev(char*);int main(){int n;scanf("%d",&n);if(n<0){rev(r);n*=-1;}while(n--)printf(r,10,34,r,34,34,37,34,10);return 0;}void rev(char *p){int l=245,i=0;char t;for(i=0;i<l;i++,l--){t=p[i];p[i]=p[l];p[l]=t;}}
