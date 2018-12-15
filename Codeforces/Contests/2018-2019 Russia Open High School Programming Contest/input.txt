@@ -1,0 +1,7 @@
+The most famous characters of Pushkin’s works are Onegin \cite{onegin},
+Dubrovsky \cite{dubrovsky} and Tsar Saltan \cite{saltan}.
+\begin{thebibliography}{99}
+\bibitem{saltan} A.S.Pushkin. The Tale of Tsar Saltan. 1832.
+\bibitem{onegin} A.S.Pushkin. Eugene Onegin. 1831.
+\bibitem{dubrovsky} A.S.Pushkin. Dubrovsky. 1841.
+\end{thebibliography}
