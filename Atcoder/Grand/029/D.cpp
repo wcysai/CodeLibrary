@@ -32,21 +32,22 @@ int main()
         printf("%d\n",h);
         return 0;
     }
-    int ans=w;
+    int ans=h;
     int now=1;
     for(int i=1;i<=w;i++)
     {
         auto it=v[i].lower_bound(now);
         if(it!=v[i].end()) ans=min(ans,*it-1);
+        if(i==w) break;
         if(v[i].count(now+1)||now==h) break;
         now++;
         bool f=true;
-        while(now<h&&v[i+1].count(now))
+        while(now<=h&&v[i+1].count(now))
         {
             now++;
             if(v[i].count(now)) {f=false; break;}
         }
-        if(!f) break;
+        if(now>h||!f) break;
     }
     printf("%d\n",ans);
     return 0;
