@@ -1,28 +1,37 @@
+#pragma GCC optimize(3)
 #include<bits/stdc++.h>
-#define MAXN 500005
+#define MAXN 100005
+#define INF 1000000000000000000LL
+#define MOD 1000000007
+#define F first
+#define S second
 using namespace std;
 typedef long long ll;
-map<ll,bool> mymap;
-int n;
-ll a[MAXN];
+typedef pair<int,int> P;
+ll n;
+vector<ll> a;
+queue<ll> q;
 int main()
 {
-    scanf("%d",&n);
-    for(int i=0;i<n;i++)
-        scanf("%lld",&a[i]);
-    sort(a,a+n);
-    int cnt=0;
-    for(int i=n-1;i>=0;i--)
+    scanf("%lld",&n);
+    for(ll i=1;i<=n;i++)
     {
-        ll x=a[i];
-        while(true)
-        {
-            if(x==1) break;
-            if(mymap.find(x)!=mymap.end()) break;
-            cnt++;
-            mymap[x]=true;
-            x/=2;
-        }
+        ll x;scanf("%lld",&x);
+        if(x>1) a.push_back(x);
     }
-    printf("%d\n",cnt);
+    sort(a.begin(),a.end());
+    ll ans=0;
+    while(q.size()||a.size())
+    {
+        ll now=INF;
+        if(a.size()) now=a.back(); else now=q.front();
+        if(q.size()&&q.front()>now) now=q.front(); 
+        ans++;
+        if(now/2>1) q.push(now/2);
+        while(a.size()&&a.back()==now) a.pop_back();
+        while(q.size()&&q.front()==now) q.pop();
+    }
+    printf("%lld\n",ans);
+    return 0;
 }
+

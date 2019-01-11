@@ -1,39 +1,57 @@
+#pragma GCC optimize(3)
 #include<bits/stdc++.h>
-#define MAXK 20005
-#define MAXN 2005
-#define INF 1e9
+#define MAXN 200005
+#define INF (1<<20)
+#define INFF 1000000000000000000LL
+#define MOD 1000000007
+#define F first
+#define S second
 using namespace std;
-int n,k,a[MAXN][21],sum[MAXN][21],dp[MAXK][MAXN];
-int cal(int a,int b)
+typedef long long ll;
+typedef pair<ll,ll> P;
+ll N,K,a[MAXN];
+ll fst[MAXN][20];
+vector<int> pos[MAXN];
+P dp[MAXN];
+P C(ll cost)
 {
-    int s=0;
-    for(int i=20;i>=0;i--)
+    dp[0]=P(0,0);
+    for(ll i=1;i<=N;i++)
     {
-        s<<=1;
-        if(sum[b][i]-sum[a-1][i]>0) s+=1;
+        dp[i]=P(-INFF,0);
+        ll cur=a[i];
+        for(ll j=0;j<(int)pos[i].size();j++)
+        {
+            if(pos[i][j]==0) break;
+            cur=cur|a[pos[i][j]];
+            dp[i]=max(dp[i],P(cur+dp[pos[i][j]-1].F-cost,dp[pos[i][j]-1].S-1));
+        }
     }
-    return s;
+    return dp[N];
 }
 int main()
 {
-    scanf("%d%d",&n,&k);;
-    for(int i=1;i<=n;i++)
+    scanf("%lld%lld",&N,&K);
+    for(ll i=1;i<=N;i++) scanf("%lld",&a[i]);
+    for(ll i=1;i<=N;i++)
     {
-        int x;
-        scanf("%d",&x);
-        for(int j=0;j<=20;j++)
-            a[i][j]=(x>>j)&1;
+        for(ll j=0;j<20;j++) fst[i][j]=fst[i-1][j];
+        pos[i].push_back(1);pos[i].push_back(i);
+        for(ll j=0;j<20;j++) if(a[i]&(1<<j)) fst[i][j]=i; else pos[i].push_back(fst[i][j]);
+        sort(pos[i].begin(),pos[i].end(),greater<>());
+        pos[i].erase(unique(pos[i].begin(),pos[i].end()),pos[i].end());
     }
-    for(int i=0;i<=20;i++)
-        sum[0][i]=0;
-    for(int i=1;i<=n;i++)
-        for(int j=0;j<20;j++)
-            sum[i][j]=a[i][j]+sum[i-1][j];
-    for(int i=1;i<=n;i++)
-        dp[1][i]=cal(1,i);
-
-    printf("%d\n",dp[k][n]);
+    ll l=-1,r=(1<<21);
+    while(r-l>1)
+    {
+        ll mid=(l+r)/2;
+        if(-C(mid).S<=K) r=mid; else l=mid;
+    }
+    P ans=C(r);
+    //printf("%lld %lld %lld\n",l,ans.F,ans.S);
+    printf("%lld\n",ans.F+K*r);
     return 0;
 }
+
 
 
