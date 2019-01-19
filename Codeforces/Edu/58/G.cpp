@@ -8,41 +8,54 @@
 using namespace std;
 typedef long long ll;
 typedef pair<int,int> P;
-ll n,k,a[MAXN];
-ll cal()
+int n,k,a[MAXN],dd,vv;
+vector<int> G[MAXN];
+bool vis[MAXN];
+void dfs_visit(int v,int p,int d,int x)
 {
-    ll k=1;
-    for(ll j=30;j>=0;j--)
+    vis[v]=true;
+    if(d>dd) {dd=d; vv=v;}
+    for(auto to:G[v])
     {
-        ll t=0;
-        for(ll i=k;i<=n;i++)
-        {
-            if((a[i]>>j)&1)
-            {
-                t=i;
-                break;
-            }
-        }
-        if(t)
-        {
-            swap(a[t],a[k]);
-            for(ll i=1;i<=n;i++)
-                if(i!=k&&((a[i]>>j)&1)) a[i]^=a[k];
-            k++;
-        }
+        if(to==p) continue;
+        if(a[to]==a[v]) dfs_visit(to,v,d+1,x);
+        else if(x!=-1&&a[to]%x==0) dfs_visit(to,v,d+1,x);
     }
-    return k-1;
+}
+int find_diameter(int i,int x)
+{
+    dd=0;dfs_visit(i,0,1,x);
+    dd=0;dfs_visit(vv,0,1,x);
+    return dd;
+}
+int find_ans(int x=-1)
+{
+    memset(vis,false,sizeof(vis));
+    int ans=0;
+    if(x==-1)
+    {
+        for(int i=1;i<=n;i++) if(!vis[i]&&a[i]!=1) ans=max(ans,find_diameter(i,x));
+    }
+    else
+    {
+        for(int i=1;i<=n;i++) if(!vis[i]&&a[i]%x==0) ans=max(ans,find_diameter(i,x));
+    }
+    //printf("%d %d\n",x,ans)
+    return ans;
 }
 int main()
 {
-    scanf("%lld",&n);
-    ll s=0;
-    for(ll i=1;i<=n;i++) 
+    scanf("%d",&n);
+    for(int i=1;i<=n;i++) scanf("%d",&a[i]);
+    for(int i=0;i<n-1;i++)
     {
-        scanf("%lld",&a[i]);
-        s^=a[i];
+        int u,v;
+        scanf("%d%d",&u,&v);
+        G[u].push_back(v);G[v].push_back(u);
     }
-    if(s==0) puts("-1"); else printf("%lld\n",cal());
+    int ans=0;
+    for(int i=2;i*i<=200000;i++) ans=max(ans,find_ans(i));
+    ans=max(ans,find_ans());
+    printf("%d\n",ans);
     return 0;
 }
-
