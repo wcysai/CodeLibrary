@@ -43,8 +43,8 @@ int main()
             continue;
         }
         int ans=0,id=sz/2;
-        for(int i=0;i<sz/2;i++) add(ans,1LL*(v[i*2]+1)*fact[id-i]%MOD);
-        for(int i=0;i<sz/2;i++) add(ans,1LL*(v[i*2+1]+1)*fact[id-i]%MOD);
+        for(int i=0;i<sz/2;i++) add(ans,1LL*(v[i*2]+1)*fact[id-i]%MOD*fact[i]%MOD);
+        for(int i=0;i<sz/2;i++) add(ans,1LL*(v[i*2+1]+1)*fact[id-i]%MOD*fact[i]%MOD);
         printf("%d\n",ans);
     }
     return 0;
