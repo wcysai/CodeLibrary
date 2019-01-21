@@ -2,9 +2,7 @@
 #include<bits/stdc++.h>
 #define MAXN 100005
 #define INF 1000000000
-#define MOD1 121
-#define MOD2 61
-#define MOD3 45161
+#define M 1000000023
 #define PHI1 110
 #define PHI2 60
 #define PHI3 45160
@@ -24,17 +22,61 @@
 #define S second
 using namespace std;
 typedef long long ll;
-int t,n,k,a[MAXN];
-int MOD[3]={121,61,45161};
-int PHI[3]={110,60,45160};
-int PR[3]={48,35,41511};
-int INV[3]={58,7,44431};
-int P[3]={85,18,20756};
-int Q[3]={37,44,24406};
-int ans[3][3];
-int pow_mod(int a,int i,int m)
+typedef pair<ll,ll> P;
+ll t,n,k,a[MAXN];
+ll MOD[4]={3,121,61,45161};
+ll PHI[4]={2,110,60,45160};
+ll ans[4];
+ll r[5][5],x[5];
+ll extgcd(ll a,ll b,ll &x,ll &y)
 {
-    int s=1;
+    ll d=a;
+    if(b!=0)
+    {
+        d=extgcd(b,a%b,y,x);
+        y-=(a/b)*x;
+    }
+    else
+    {
+        x=1;
+        y=0;
+    }
+    return d;
+}
+ll mod_inverse(ll a,ll m)
+{
+    ll x,y;
+    extgcd(a,m,x,y);
+    return (m+x%m)%m;
+}
+ll solve(vector<P> &v)
+{
+    for(ll i=0;i<4;i++)
+        for(ll j=i+1;j<4;j++)
+            r[i][j]=mod_inverse(v[i].S,v[j].S);
+    ll ans=0;
+    for(ll i=0;i<4;i++)
+    {
+        x[i]=v[i].F;
+        for(ll j=0;j<i;j++)
+        {
+            x[i]=r[j][i]*(x[i]-x[j]);
+            x[i]=x[i]%v[i].S;
+            if(x[i]<0) x[i]+=v[i].S;
+        }
+    }
+    ll base=1;
+    for(ll i=0;i<4;i++)
+    {
+        ans=(ans+base*x[i])%M;
+        base=base*v[i].S%M;
+    }
+    return ans;
+}
+ll pow_mod(ll a,ll i,ll m)
+{
+    if(a==0) return 0;
+    ll s=1;
     while(i)
     {
         if(i&1) s=1LL*s*a%m;
@@ -43,44 +85,53 @@ int pow_mod(int a,int i,int m)
     }
     return s;
 }
+ll find_period(ll m)
+{
+    ll a=1,b=1,cnt=0;
+    do
+    {
+        ll c=(a+b)%m;
+        a=b;b=c;cnt++;
+    }while(a!=1||b!=1);
+    return cnt;
+}
+ll calc_sum(ll t,ll n,ll m)
+{
+    if(t<=2) return t;
+    ll ans=2;
+    ll a=1,b=1;
+    for(ll i=1;i<=t-2;i++)
+    {
+        ll c=a+b; if(c>=m) c-=m;
+        a=b;b=c;
+        ans+=pow_mod(c,n,m);
+        if(ans>=m) ans-=m;
+    }
+    return ans;
+}
 int main()
 {
-    scanf("%d",&t);
-    //printf("%d %d %d\n",pow_mod(PR1,109,MOD1),(1LL*(PR1+1)*(MOD1+1)/2)%MOD1,(1LL*(1-PR1+MOD1)*(MOD1+1)/2)%MOD1);
-    //printf("%d %d %d\n",pow_mod(PR2,MOD2-2,MOD2),(1LL*(PR2+1)*(MOD2+1)/2)%MOD2,(1LL*(1-PR2+MOD2)*(MOD2+1)/2)%MOD2);
-    //printf("%d %d %d\n",pow_mod(PR3,MOD3-2,MOD3),(1LL*(PR3+1)*(MOD3+1)/2)%MOD3,(1LL*(1-PR3+MOD3)*(MOD3+1)/2)%MOD3);
+    scanf("%lld",&t);
+    //printf("%lld %lld %lld\n",pow_mod(PR1,109,MOD1),(1LL*(PR1+1)*(MOD1+1)/2)%MOD1,(1LL*(1-PR1+MOD1)*(MOD1+1)/2)%MOD1);
+    //printf("%lld %lld %lld\n",pow_mod(PR2,MOD2-2,MOD2),(1LL*(PR2+1)*(MOD2+1)/2)%MOD2,(1LL*(1-PR2+MOD2)*(MOD2+1)/2)%MOD2);
+    //printf("%lld %lld %lld\n",pow_mod(PR3,MOD3-2,MOD3),(1LL*(PR3+1)*(MOD3+1)/2)%MOD3,(1LL*(1-PR3+MOD3)*(MOD3+1)/2)%MOD3);
     while(t--)
     {
-        scanf("%d%d",&n,&k);
-        for(int i=0;i<3;i++)
+        scanf("%lld%lld",&n,&k);
+        for(ll i=0;i<4;i++)
         {
-            int ex=k%PHI[i];
-            int p=pow_mod(P[i],ex,MOD[i]);
-            printf("p=%d\n",p);
-            int denom1=p-1; if(denom1<0) denom1+=MOD[i];
-            if(denom1==0) ans[i][0]=1LL*(n%MOD[i])*P[i]%MOD[i];
-            else
-            {
-                denom1=pow_mod(denom1,PHI[i]-1,MOD[i]);
-                assert(1LL*denom1*(p-1)%MOD[i]==1);
-                ans[i][0]=1LL*(pow_mod(P[i],n%PHI[i],MOD[i])-1)*denom1%MOD[i]*p%MOD[i];
-                if(ans[i][0]<0) ans[i][0]+=MOD[i];
-            }
-            p=pow_mod(Q[i],ex,MOD[i]);
-            printf("p=%d\n",p);
-            int denom2=p-1; if(denom2<0) denom2+=MOD[i];
-            if(denom2==0) ans[i][1]=1LL*(n%MOD[i])*Q[i]%MOD[i];
-            else
-            {
-                denom2=pow_mod(denom2,PHI[i]-1,MOD[i]);
-                assert(1LL*denom2*(p-1)%MOD[i]==1);
-                ans[i][1]=1LL*(pow_mod(Q[i],n%PHI[i],MOD[i])-1)*denom2%MOD[i]*p%MOD[i];
-                if(ans[i][1]<0) ans[i][1]+=MOD[i];
-            }
-            ans[i][2]=(1LL*(ans[i][0]-ans[i][1]+MOD[i])*INV[i])%MOD[i];
-            printf("%d %d %d %d\n",i,ans[i][0],ans[i][1],ans[i][2]);
+            ll p;
+            p=find_period(MOD[i]);
+            ll num=n/p,pre=n%p;
+            if(i!=1) ans[i]=(1LL*(num%MOD[i])*calc_sum(p,k%PHI[i],MOD[i])+calc_sum(pre,k%PHI[i],MOD[i]))%MOD[i];
+            else  ans[i]=(1LL*(num%MOD[i])*calc_sum(p,k,MOD[i])+calc_sum(pre,k,MOD[i]))%MOD[i];
         }
+        vector<P> v;v.clear();
+        for(ll i=0;i<4;i++) v.push_back(P(ans[i],MOD[i]));
+        printf("%lld\n",solve(v));
     }
     return 0;
 }
-
+//983730627 679276841
+//std: 269933389
+//me: 906297040
