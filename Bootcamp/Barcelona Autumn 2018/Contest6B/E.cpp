@@ -1,20 +1,14 @@
-/*************************************************************************
-    > File Name: E.cpp
-    > Author: Roundgod
-    > Mail: wcysai@foxmail.com 
-    > Created Time: 2018-10-03 03:21:55
- ************************************************************************/
-
 #pragma GCC optimize(3)
-#include<bits/stdc++.h>
-#define MAXN 100005
-#define INF 1000000000
+#include <bits/stdc++.h>
+#define MAXN 1000005
 #define MOD 998244353
 #define F first
 #define S second
 using namespace std;
 typedef long long ll;
 typedef pair<int,int> P;
+const double PI=acos(-1.0);
+void add(int &a,int b) {a+=b; if(a>=MOD) a-=MOD;}
 namespace fft
 {
     struct num
@@ -79,7 +73,7 @@ namespace fft
 
     vector<num> fa,fb;
     
-    vector<int> multiply(vector<int> a, vector<int> b)
+    vector<int> multiply(vector<int> &a, vector<int> &b)
     {
         int need=a.size()+b.size()-1;
         int nbase=0;
@@ -108,7 +102,7 @@ namespace fft
         return res;
     }
 
-    vector<int> multiply_mod(vector<int> a,vector<int> b,int m,int eq=0)
+    vector<int> multiply_mod(vector<int> &a,vector<int> &b,int m,int eq=0)
     {
         int need=a.size()+b.size()-1;
         int nbase=0;
@@ -172,33 +166,37 @@ namespace fft
         return multiply_mod(a,a,m,1);
     }
 };
-int n,m,p,x;
-int pw[100005];
-vector<int> solve(int l,int r)
+int n,m,p,x,pw[MAXN];
+vector<int> solve(int x)
 {
-    if(l==r) 
+    if(x==1) 
     {
-        vector<int> a(m,0);
-        int cur=pw[l];
-        for(int i=1;i<=26;i++)
-            a[cur*i%m]++;
-        return a;
+        vector<int> v(m,0);
+        for(int i=1;i<=26;i++) v[i%m]++;
+        return v;
     }
-    vector<int> a;
-    int mid=(l+r)/2;
-    a=fft::multiply_mod(solve(l,mid),solve(mid+1,r),MOD);
-    for(int i=m;i<(int)a.size();i++) {a[i%m]+=a[i];if(a[i%m]>=MOD) a[i%m]-=MOD;}
-    for(int i=0;i<m;i++) if(a[i]>=MOD) a[i]-=MOD;
-    a.resize(m);
-    return a;
+    if(x&1)
+    {
+        vector<int> v=solve(x-1);
+        vector<int> ret(m,0);
+        for(int i=0;i<m;i++)
+            for(int j=1;j<=26;j++)
+                add(ret[(i*p+j)%m],v[i]);
+        return ret;
+    }
+    vector<int> v=solve(x/2);
+    vector<int> v2(m);
+    for(int i=0;i<m;i++) add(v2[(i*pw[x/2])%m],v[i]);
+    vector<int> ret=fft::multiply_mod(v,v2,MOD);
+    for(int i=m;i<(int)ret.size();i++) add(ret[i%m],ret[i]);
+    ret.resize(m);
+    return ret;
 }
 int main()
 {
     scanf("%d%d%d%d",&n,&m,&p,&x);
     pw[0]=1;
-    for(int i=1;i<=n-1;i++) pw[i]=p*pw[i-1]%m;
-    vector<int> a=solve(0,n-1);
-    printf("%d\n",a[x]);
-    return 0;
+    for(int i=1;i<=n;i++) pw[i]=1LL*p*pw[i-1]%m;
+    vector<int> ans=solve(n);
+    printf("%d\n",ans[x]);
 }
-
