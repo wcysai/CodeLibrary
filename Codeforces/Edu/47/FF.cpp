@@ -38,7 +38,8 @@ struct state
     void add(int i,int val)
     {
         (*a)[i]+=val;
-        if(P((*a)[i],i)>P((*a)[cur_max],cur_max)) cur_max=i;
+        if((*a)[i]>(*a)[cur_max]) cur_max=i;
+        else if((*a)[i]==(*a)[cur_max]&&i>cur_max) cur_max=i;
     }
 }s[MAXN];
 state pull(state z)
@@ -55,7 +56,7 @@ state pull(state z)
         state c;
         c.a=z.a;
         c.cur_max=z.cur_max;
-        c.a->push_back(0);
+        c.a->push_back(0);;
         c.add(c.sz()-1,1);
         return c;
     }
@@ -63,8 +64,8 @@ state pull(state z)
 state merge(state a,state b)
 {
     if(a.sz()<b.sz()) swap(a,b);
-    int as=a.sz();
     int bs=b.sz();
+    int as=a.sz();
     for(int i=0;i<bs;i++) a.add(as-i-1,(*(b.a))[bs-i-1]);
     return a;
 }
@@ -79,15 +80,17 @@ void dfs(int v,int p)
         s[v]=merge(s[v],s[to]);
     }
     s[v]=pull(s[v]);
-    ans[v]=s[v].sz()-s[v].cur_max-1;
+    ans[v]=s[v].sz()-1-s[v].cur_max;
 }
 int main()
 {
     IO::begin();
     IO::read(n);
+    //scanf("%d",&n);
     for(int i=0;i<n-1;i++)
     {
-        int u,v;
+        int u,v; 
+        //scanf("%d%d",&u,&v);
         IO::read(u); IO::read(v);
         G[u].push_back(v);G[v].push_back(u);
     }
