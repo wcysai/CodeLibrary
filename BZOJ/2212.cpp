@@ -28,9 +28,10 @@ inline tr *merge(tr *a,tr *b)
 {
     if(a->size()<b->size()) swap(a,b);
     ll res=0;
-    for(int x:*b) res+=a->order_of_key(x);
+    tr::iterator it;
+    for(it=(*b).begin();it!=(*b).end();it++) res+=a->order_of_key(*it);
     ans+=min(res,1LL*(int)a->size()*(int)b->size()-res);
-    for(int x:*b) a->insert(x);
+    for(it=(*b).begin();it!=(*b).end();it++) a->insert(*it);
     delete b;
     return a;
 }
