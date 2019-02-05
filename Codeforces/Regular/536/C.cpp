@@ -1,6 +1,6 @@
 #pragma GCC optimize(3)
 #include<bits/stdc++.h>
-#define MAXN 100005
+#define MAXN 300005
 #define INF 1000000000
 #define MOD 1000000007
 #define F first
