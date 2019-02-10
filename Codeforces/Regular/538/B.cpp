@@ -36,7 +36,7 @@ int main()
             cnt=0;
         }
     }
-    for(auto x:ans) if(x!=n) printf("%d ",x);
+    for(int i=0;i<k-1;i++) printf("%d ",ans[i]);
     return 0;
 }
 
