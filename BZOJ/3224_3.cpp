@@ -11,7 +11,7 @@ using namespace std;
 using namespace __gnu_pbds;
 typedef long long ll;
 typedef pair<int,int> P;
-typedef tree<int,null_mapped_type,less<int>,rb_tree_tag,tree_order_statistics_node_update> ordered_set;
+typedef tree<int,null_mapped_type,less_equal<int>,rb_tree_tag,tree_order_statistics_node_update> ordered_set;
 typedef ordered_set::iterator itr;
 int n,opt,x;
 ordered_set s;
