@@ -33,8 +33,8 @@ int main()
         ll turns=l;
         a-=turns*k;b-=turns;
         ll cnta=0,cntb=0;
-        while(b<=k*a&&a>0) cnta++,a--;
-        while(b>k*a&&b>0) cntb++,b--;
+        cnta=a-(b-1)/k; a-=cnta;
+        cntb=b-k*a; b-=cntb;
         assert(b==k*a);
         for(ll i=max(c,1LL);i<=min(d,turns*(k+1));i++)
         {
