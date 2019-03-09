@@ -1,39 +1,27 @@
 #pragma GCC optimize(3)
 #include<bits/stdc++.h>
-#include<ext/pb_ds/assoc_container.hpp>
-#include<ext/pb_ds/tree_policy.hpp>
-#include<ext/pb_ds/priority_queue.hpp>
 #define MAXN 100005
 #define MAXD 55
+#define MAXM 5000005
 #define INF 1000000000
 #define MOD 1000000007
 #define F first
 #define S second
-#define next vdsofas
 using namespace std;
-using namespace __gnu_pbds;
 typedef long long ll;
 typedef pair<int,int> P;
-typedef tree<int,null_type,less<int>,rb_tree_tag,tree_order_statistics_node_update> ordered_set;
-typedef __gnu_pbds::priority_queue<int,greater<int>,pairing_heap_tag> pq;
-int n,m,d;
+int n,m,d,p;
 int u[MAXN],v[MAXN];
-vector<int> G[MAXN];
-string str[MAXN];
-bool vs[MAXN][MAXD];
-void dfs(int v,int cur)
+vector<int> G[MAXM];
+char str[MAXN][MAXD];
+void add_edge(int u,int v)
 {
-    int next=(cur+1)%d;
-    vs[v][cur]=true;
-    for(auto to:G[v])
-    {
-        if(vs[to][next]) continue;
-        dfs(to,next);
-    }
+    G[u].push_back(v);
 }
-int dfn[MAXN],low[MAXN],st[MAXN];
-int vis[MAXN];
-int cmp[MAXN],cnt,tot,t;
+int dfn[MAXM],low[MAXM],st[MAXM];
+int vis[MAXM];
+int ans;
+int cmp[MAXM],cnt,tot,t;
 void dfs(int v)
 {
     dfn[v]=low[v]=++tot;
@@ -64,60 +52,52 @@ int tarjan()
 {
     t=tot=cnt=0;
     memset(vis,0,sizeof(vis));
-    for(int i=1;i<=n;i++) if(!dfn[i]) dfs(i);
+    dfs(0);
     return cnt;
 }
-int res[MAXN],dp[MAXN],p,ans;
-vector<int> GG[MAXN];
-deque<int> order;
-void dfs_visit(int v)
+int dfs_visit(int v)
 {
-    vis[v]=true;
-	for(auto to:GG[v])
-		if(!vis[to])
-			dfs_visit(to);
-	order.push_front(v);
+    if(dfn[v]!=-1) return dfn[v];
+    dfn[v]=0;
+	for(auto to:G[v]) dfn[v]=max(dfn[v],dfs_visit(to));
+    dfn[v]+=low[v];
+    return dfn[v];
 }
-void toposort()
-{
-    memset(vis,false,sizeof(vis));
-	for(int i=1;i<=p;i++)
-		if(!vis[i]) dfs_visit(i);
-}
-void dfs2(int v)
-{
-    ans=max(ans,dp[v]);
-    for(auto to:GG[v]) dfs2(to);
-}
+
+unordered_set<int> s;
 int main()
 {
     scanf("%d%d%d",&n,&m,&d);
+    for(int i=0;i<m;i++) scanf("%d%d",&u[i],&v[i]);
+    for(int i=0;i<n;i++) scanf("%s",str[i]);
     for(int i=0;i<m;i++)
-    {
-        scanf("%d%d",&u[i],&v[i]);
-        G[u[i]].push_back(v[i]);
-    }
-    for(int i=1;i<=n;i++) cin>>str[i];
-    dfs(1,0);
-    ans=0;
+        for(int j=0;j<d;j++)
+            add_edge((u[i]-1)*d+j,(v[i]-1)*d+(j+1)%d);
     p=tarjan();
-    for(int i=1;i<=n;i++)
-    {
-        for(int j=0;j<d;j++) if(vs[i][j]&&str[i][j]=='1') {res[cmp[i]]++; break;}
-    }
+    for(int i=0;i<n*d;i++) G[i].clear(),G[i].shrink_to_fit();
     for(int i=0;i<m;i++)
+        for(int j=0;j<d;j++)
+        {
+            int a=(u[i]-1)*d+j,b=(v[i]-1)*d+(j+1)%d;
+            if(!cmp[a]||!cmp[b]) continue;
+            if(cmp[a]==cmp[b]) continue;
+            G[cmp[a]].push_back(cmp[b]);
+        }
+    memset(dfn,-1,sizeof(dfn));memset(low,0,sizeof(low));
+    for(int i=0;i<n;i++)
     {
-        if(cmp[u[i]]!=cmp[v[i]]) GG[cmp[u[i]]].push_back(cmp[v[i]]);
+        s.clear();
+        for(int j=0;j<d;j++)
+        {
+            if(str[i][j]!='1') continue;
+            int c=cmp[i*d+j];
+            if(!c) continue;
+            s.insert(c);
+        }
+        for(auto x:s) low[x]++;
     }
-    toposort();
-    for(int i=0;i<(int)order.size();i++)
-    {
-        int v=order[i];
-        dp[v]=max(dp[v],res[v]);
-        for(auto to:GG[v]) dp[to]=max(dp[to],dp[v]+res[to]);
-    }
-    dfs2(cmp[1]);
+    memset(vis,0,sizeof(vis));
+    ans=dfs_visit(cmp[0]);
     printf("%d\n",ans);
     return 0;
 }
-
