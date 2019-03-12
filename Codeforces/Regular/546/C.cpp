@@ -27,7 +27,7 @@ int main()
         for(int j=1;j<=m;j++)
             scanf("%d",&b[i][j]);
     bool f=true;
-    for(int i=1;i<=n;i++)
+    for(int i=1;i<=m;i++)
     {
         v1.clear();v2.clear();
         int x=1,y=i;
@@ -35,19 +35,19 @@ int main()
         {
             v1.push_back(a[x][y]);v2.push_back(b[x][y]);
             x++;y--;
-        }while(y>=1);
+        }while(x>=1&&x<=n&&y>=1&&y<=m);
         sort(v1.begin(),v1.end());sort(v2.begin(),v2.end());
         for(int j=0;j<(int)v1.size();j++) if(v1[j]!=v2[j]) f=false;
     }
     for(int i=2;i<=n;i++)
     {
         v1.clear();v2.clear();
-        int x=i,y=n;
+        int x=i,y=m;
         do
         {
             v1.push_back(a[x][y]);v2.push_back(b[x][y]);
             x++;y--;
-        }while(x<=n);
+        }while(x>=1&&x<=n&&y>=1&&y<=m);
         sort(v1.begin(),v1.end());sort(v2.begin(),v2.end());
         for(int j=0;j<(int)v1.size();j++) if(v1[j]!=v2[j]) f=false;
     }
