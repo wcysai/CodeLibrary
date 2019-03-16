@@ -18,15 +18,21 @@ ll a,b;
 int main()
 {
     scanf("%lld%lld",&a,&b);
+    if(a==b)
+    {
+        puts("1");
+        return 0;
+    }
     int r=63-__builtin_clzll(a^b);
     ll T=(1LL<<r);
     a=a%T;b=T+b%T;
-    int k=63-__builtin_clzll(b-T);
-    ll ans=T-a+1;
-    if(a<=(1LL<<(k+1))+1) ans+=T-1;
+    int k;
+    if(b==T) k=-1; else k=63-__builtin_clzll(b-T);
+    ll ans=T-a;
+    if(a<=(1LL<<(k+1))-1) ans+=T;
     else 
     {
-        ans+=(1LL<<(k+1))-1;
+        ans+=(1LL<<(k+1));
         ans+=T-a;
     }
     printf("%lld\n",ans);
