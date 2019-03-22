@@ -14,26 +14,22 @@ typedef long long ll;
 typedef pair<int,int> P;
 typedef tree<int,null_type,less<int>,rb_tree_tag,tree_order_statistics_node_update> ordered_set;
 typedef __gnu_pbds::priority_queue<int,greater<int>,pairing_heap_tag> pq;
-ll n;
-int cnt=0;
-deque<int> v;
-void solve(ll n)
-{
-    if(n==1) return;
-    if(n&1) {solve(n-1); v.push_front(++cnt);}
-    else
-    {
-        solve(n>>1);
-        v.push_back(++cnt);
-    }
-}
+int n,k,a[MAXN];
 int main()
 {
-    scanf("%lld",&n);solve(n+1);
-    printf("%d\n",2*cnt);
-    for(auto x:v) printf("%d ",x);
-    for(int i=1;i<=cnt;i++) printf("%d ",i);
-    puts("");
+    scanf("%d",&n);
+    for(int i=1;i<=n;i++) scanf("%d",&a[i]);
+    int ans=0,maxi=0;
+    for(int i=1;i<=n;i++)
+    {
+        maxi=max(maxi,a[i]);
+        if(maxi==i)
+        {
+            ans++;
+            maxi=0;
+        }
+    }
+    printf("%d\n",ans);
     return 0;
 }
 

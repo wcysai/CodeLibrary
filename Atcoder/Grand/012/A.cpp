@@ -3,7 +3,7 @@
 #include<ext/pb_ds/assoc_container.hpp>
 #include<ext/pb_ds/tree_policy.hpp>
 #include<ext/pb_ds/priority_queue.hpp>
-#define MAXN 100005
+#define MAXN 300005
 #define INF 1000000000
 #define MOD 1000000007
 #define F first
