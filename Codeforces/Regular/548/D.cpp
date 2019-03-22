@@ -14,9 +14,11 @@ typedef long long ll;
 typedef pair<int,int> P;
 typedef tree<int,null_type,less<int>,rb_tree_tag,tree_order_statistics_node_update> ordered_set;
 typedef __gnu_pbds::priority_queue<int,greater<int>,pairing_heap_tag> pq;
-int m,k,a[MAXN];
-double dp[MAXN];
+int n,prime[MAXN],miu[MAXN];
+bool is_prime[MAXN];
+int inv[MAXN];
 void add(int &a,int b) {a+=b; if(a>=MOD) a-=MOD;}
+void dec(int &a,int b) {a-=b; if(a<0) a+=MOD;}
 int pow_mod(int a,int i)
 {
     int s=1;
@@ -28,27 +30,39 @@ int pow_mod(int a,int i)
     }
     return s;
 }
-double solve(int x)
+int sieve(int n)
 {
-    if(x==1) return 0;
-    if(dp[x]!=-1) return dp[x];
-    int cnt=0;
-    double res=0;
-    for(int i=1;i<=m;i++)
+    int p=0;
+    for(int i=0;i<=n;i++) is_prime[i]=true;
+    is_prime[0]=is_prime[1]=false;
+    memset(miu,0,sizeof(miu));
+    miu[1]=1;
+    for(int i=2;i<=n;i++)
     {
-        if(i%x==0) cnt++;
-        else res+=solve(__gcd(i,x));
+        if(is_prime[i]) {prime[p++]=i; miu[i]=-1;}
+        for(int j=0;j<p;j++)
+        {
+            if(prime[j]*i>n) break;
+            is_prime[prime[j]*i]=false;
+            miu[i*prime[j]]=i%prime[j]?-miu[i]:0;
+            if(i%prime[j]==0) break;
+        }
     }
-    res+=m;
-    res=res/(m-cnt);
-    return dp[x]=res;
+    return p;
 }
 int main()
 {
-    //for(int i=1;i<=100000;i++) inv[i]=pow_mod(i,MOD-2);
-    scanf("%d",&m);
-    for(int i=1;i<=m;i++) dp[i]=-1;
-    for(int i=1;i<=m;i++) printf("%.10f\n",solve(i));
+    sieve(100000);
+    scanf("%d",&n);
+    for(int i=1;i<=n;i++) inv[i]=pow_mod(i,MOD-2);
+    int ans=1;
+    for(int i=2;i<=n;i++)
+    {
+        if(!miu[i]) continue;
+        int res=1LL*n*inv[n-(n/i)]%MOD; dec(res,1);
+        if(miu[i]==1) dec(ans,res); else add(ans,res);
+    }
+    printf("%d\n",ans);
     return 0;
 }
 
