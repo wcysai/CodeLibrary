@@ -5,11 +5,12 @@
 #define MOD 1000000007
 #define F first
 #define S second
+#define double long double
 using namespace std;
 typedef long long ll;
 typedef pair<int,int> P;
 const double PI=acos(-1.0);
-const double eps=1e-6;
+const double eps=1e-8;
 int sgn(double ta,double tb)
 {
     if(fabs(ta-tb)<eps) return 0;
@@ -25,7 +26,9 @@ struct Point
 
     bool operator <(const Point &_se) const
     {
-        return x<_se.x||(x==_se.x&&y<_se.y);
+        if(sgn(x,_se.x)!=0) return x<_se.x;
+        if(sgn(y,_se.y)!=0) return y<_se.y;
+        return false;
     }
     friend Point operator +(const Point &_st,const Point &_se)
     {
@@ -107,6 +110,12 @@ static int crossLPT(const Line &_st,const Line &_se, Point &ret)
     ret.y+=(_st.e.y-_st.s.y)*t;
     return 1;
 }
+
+double getdis(const Point &st,const Point &se)
+{
+    return sqrt((st.x - se.x) * (st.x - se.x) + (st.y - se.y) * (st.y - se.y));
+}
+
 int n;
 vector<Line> lines;
 set<Point> points;
@@ -122,7 +131,7 @@ int main()
     for(int i=0;i<n;i++)
     {
         Point s,e;
-        scanf("%lf%lf%lf%lf",&s.x,&s.y,&e.x,&e.y);
+        scanf("%Lf%Lf%Lf%Lf",&s.x,&s.y,&e.x,&e.y);
         Line l(s,e);
         lines.push_back(l);
     }
@@ -130,7 +139,12 @@ int main()
         for(int j=i+1;j<n;j++)
         {
             Point intersect;
-            if(crossLPT(lines[i],lines[j],intersect)!=-1) points.insert(intersect);
+            if(crossLPT(lines[i],lines[j],intersect)!=-1) 
+            {
+                bool f=true;
+                for(auto p:points) if(p==intersect) f=false;
+                if(f) points.insert(intersect);
+            }
         }
     for(auto p:points) pp.push_back(p);
     for(auto l:lines)
@@ -186,13 +200,13 @@ int main()
                 }
                 int id=rb;
                 if(sgn(outlines[num][sz-1].angle,reverseline.angle)==0) id=0;
-                if(sgn(outlines[num][id].angle,reverseline.angle)==0) {f=false; break;}
+                //if(sgn(outlines[num][id].angle,reverseline.angle)==0) {f=false; break;}
                 double dangle=outlines[num][id].angle-reverseline.angle;
                 while(sgn(dangle,0)<0) dangle+=2*PI;
                 while(sgn(dangle,2*PI)>0) dangle-=2*PI;
                 if(sgn(dangle,PI)>0) {f=false; break;}
                 //printf("%d %d %d\n",num,(int)outlines[num].size(),id);
-                //if(outlines[num][id].used) {f=false; break;}
+                if(outlines[num][id].used) {f=false; break;}
                 outlines[num][id].used=true;
                 curline=outlines[num][id];
                 from=to; to=curline.e; 
@@ -201,11 +215,12 @@ int main()
             {
                 //puts("done");
                 area+=from.x*to.y-to.x*from.y;
-                if(fabs(area)>eps) ans.push_back(fabs(area/2.0));
+                if(fabs(area)>2*eps) ans.push_back(fabs(area/2.0));
             }
         }
     }
     printf("%d\n",(int)ans.size());
-    for(auto v:ans) printf("%.4f\n",v);
+    sort(ans.begin(),ans.end());
+    for(auto v:ans) printf("%.10Lf\n",v);
     return 0;
 }
