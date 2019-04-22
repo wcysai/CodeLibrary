@@ -18,10 +18,10 @@ int n,q;
 int a[MAXN],ans[MAXN],isflip[MAXN];
 struct segtree
 {
-    int sum[4*MAXN],lazy[4*MAXN],add[4*MAXN];
+    int sum[4*MAXN],lazy[4*MAXN],flp[4*MAXN];
     void pushup(int k)
     {
-        sum[k]=sum[k*2];
+        ;
     }
     void pushdown(int k)
     {
@@ -31,16 +31,16 @@ struct segtree
             {
                 sum[i]=lazy[i]=lazy[k];
             }
-            lazy[k]=0;
+            lazy[k]=0; flp[k]=0;
         }
-        if(add[k])
+        else if(flp[k])
         {
             for(int i=k*2;i<=k*2+1;i++) 
             {
-                sum[i]+=add[k];
-                add[i]+=add[k];
+                sum[i]=-sum[i];
+                if(lazy[i]) lazy[i]=-lazy[i]; else flp[i]^=1;
             }
-            add[k]=0;
+            flp[k]=0;
         }
     }
     void update(int k,int l,int r,int x,int y,int v)
@@ -57,18 +57,18 @@ struct segtree
         update(k*2,l,mid,x,y,v); update(k*2+1,mid+1,r,x,y,v);
         pushup(k);
     }
-    void ad(int k,int l,int r,int x,int y)
+    void flip(int k,int l,int r,int x,int y)
     {
         if(l>y||x>r) return;
         if(l>=x&&r<=y) 
         {
-            add[k]++;
-            sum[k]++;;
+            sum[k]=-sum[k];
+            if(lazy[k]) lazy[k]=-lazy[k]; else flp[k]^=1;
             return;
         }
         pushdown(k);
         int mid=(l+r)/2;
-        ad(k*2,l,mid,x,y); ad(k*2+1,mid+1,r,x,y);
+        flip(k*2,l,mid,x,y); flip(k*2+1,mid+1,r,x,y);
         pushup(k);
     }
     int query(int k,int l,int r,int p)
@@ -109,7 +109,7 @@ int main()
             }
         }
     }
-    for(int i=1;i<=n;i++) ans[i]=seg1.query(1,1,100000,i),isflip[i]=seg2.query(1,1,100000,i);
+    for(int i=1;i<=100000;i++) ans[i]=seg1.query(1,1,100000,i),isflip[i]=seg2.query(1,1,100000,i);
     for(int i=1;i<=n;i++) 
     {
         int x=abs(a[i]);
