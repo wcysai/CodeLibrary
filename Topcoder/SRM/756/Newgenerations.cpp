@@ -9,26 +9,28 @@ typedef long long ll;
 typedef pair<int,int> P;
 map<pair<int,int>,int > mp;
 int dp[2][(1<<20)];
+vector<int> G[MAXN];
+void add(int &a,int b) {a+=b; if(a>=MOD) a-=MOD;}
+int n,m,tot,cnt,nul;
+int dx[4]={-1,1,0,0},dy[4]={0,0,-1,1};
+int find_id(int x,int y)
+{
+    if(mp.find(P(x,y))==mp.end()) mp[P(x,y)]=tot++;
+    return mp[P(x,y)];
+}
 class Newgenerations {
 	public:
-    int n,m,tot,cnt;
-    int dx[4]={-1,1,0,0},dy[4]={0,0,-1,1};
-    vector<int> G[MAXN];
-    void add(int &a,int b) {a+=b; if(a>=MOD) a-=MOD;}
-    int find_id(int x,int y)
-    {
-        if(mp.find(P(x,y))==mp.end()) mp[P(x,y)]=tot++;
-        return mp[P(x,y)];
-    }
+    
 	int count(vector <string> field) {
         mp.clear();
 		n=field.size(); m=field[0].size();
         for(int i=0;i<n*m;i++) G[i].clear();
-        tot=0; cnt=0;
+        tot=0; cnt=0; 
+        nul=0;
         for(int i=0;i<n;i++)
             for(int j=0;j<m;j++)
             {
-                if(field[i][j]=='X')
+                if(field[i][j]=='x')
                 {
                     bool valid=false;
                     vector<int> edges; edges.clear();
@@ -40,7 +42,6 @@ class Newgenerations {
                             valid=true;
                             continue;
                         }
-                        assert(field[nx][ny]=='.');
                         if(field[nx][ny]=='.')
                         {
                             valid=true;
@@ -59,6 +60,7 @@ class Newgenerations {
                         cnt++;
                     }
                 }
+                else if(field[i][j]=='*') nul++; 
             }
         memset(dp,0,sizeof(dp));
         dp[0][0]=1;
@@ -75,7 +77,9 @@ class Newgenerations {
                 add(dp[nxt][mask|curmask],dp[now][mask]);
             }
         }
-        return dp[tot&1][(1<<cnt)-1];
+        int ans=dp[tot&1][(1<<cnt)-1];
+        for(int j=0;j<nul-tot;j++) ans=2LL*ans%MOD;
+        return ans;
 	}
 };
 // BEGIN CUT HERE
