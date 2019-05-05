@@ -23,6 +23,7 @@ int n,m;
 char mp[MAXN][MAXN];
 short toright[MAXN][MAXN],todown[MAXN][MAXN];
 short row[22][MAXN][MAXN*MAXN/2],col[22][MAXN][MAXN*MAXN/2];
+short dp[MAXN];
 void update(short &a,short b) {a=max(a,b);}
 int main()
 {
@@ -99,7 +100,6 @@ int main()
                     short val=row[turns][pos][get_id(l,r)];
                     short rightest=max(val,row[turns][val+1][get_id(l,r)]);
                     update(row[turns+1][pos][get_id(l,r)],rightest);
-                    update(col[turns+1][l][get_id(pos,rightest)],r);
                 }
             }
         }
@@ -113,11 +113,21 @@ int main()
                     short val=col[turns][pos][get_id(l,r)];
                     short downest=max(val,col[turns][val+1][get_id(l,r)]);
                     update(col[turns+1][pos][get_id(l,r)],downest);
-                    update(row[turns+1][l][get_id(pos,downest)],r);
                 }
             }
         }
+        for(int x=1;x<=n;x++)
+            for(int y=1;y<=m;y++)
+            {
+                for(int i=1;i<=max(n,m);i++) dp[i]=0;
+                for(int z=y;z<=m;z++) update(dp[col[turns+1][x][get_id(y,z)]],(short)z);
+                for(int i=n;i>=x;i--) update(dp[i],dp[i+1]),update(row[turns+1][y][get_id(x,i)],dp[i]);
+                for(int i=1;i<=max(n,m);i++) dp[i]=0;
+                for(int z=x;z<=n;z++) update(dp[row[turns+1][y][get_id(x,z)]],(short)z);
+                for(int i=m;i>=y;i--) update(dp[i],dp[i+1]),update(col[turns+1][x][get_id(y,i)],dp[i]);
+            }
     }
+    assert(0);
     return 0;
 }
 
