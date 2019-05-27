@@ -199,103 +199,168 @@ namespace fft
 namespace poly
 {
     int inv(int x) {return pow_mod(x,MOD-2,MOD);}
-    vector<int> fa,fb,fc,fd;
-    vector<int> get_inv(vector<int> &a,int n)
+    vector<int> fa,fb,fc,fd,fe,ff,fg,Inv;
+    vector<vector<int> > segtree;
+    void get_inv(vector<int> &a,int n,vector<int> &ret)
     {
         assert(a[0]!=0);
         if(n==1)
         {
-            fa.resize(1);
-            fa[0]=inv(a[0]);
-            return fa;
+            ret.resize(1);
+            ret[0]=inv(a[0]);
+            return;
         }
-        fa=get_inv(a,(n+1)>>1);
-        fb=fft::multiply_mod(fa,fa,MOD,1);
-        fb=fft::multiply_mod(fb,a,MOD);
-        fa.resize(n); fb.resize(n);
+        get_inv(a,(n+1)>>1,ret);
+        fa=a; fb=ret;
+        fa=fft::multiply_mod(fb,fb,MOD,1);
+        fa=fft::multiply_mod(fa,a,MOD);
+        fa.resize(n); fb.resize(n); ret.resize(n);
         for(int i=0;i<n;i++)
         {
-            fa[i]=inc(fa[i],fa[i]);
-            fa[i]=dec(fa[i],fb[i]);
+            ret[i]=inc(fb[i],fb[i]);
+            ret[i]=dec(ret[i],fa[i]);
         }
-        return fa;
+        fa.clear(); fb.clear();
     }
-    vector<int> get_sqrt(vector<int> &a,int n)
+    void get_sqrt(vector<int> &a,int n,vector<int> &ret)
     {
         if(n==1) 
         {
-            fc.resize(1);
+            ret.resize(1);
             int x=Tonelli_Shanks(a[0],MOD);
             assert(x!=-1);
-            fc[0]=x;return fc;
+            ret[0]=x;
+            return;
         }
-        fd=get_sqrt(a,(n+1)>>1);
-        fc=get_inv(fd,n);
-        fd=fft::multiply_mod(fd,fd,MOD,1);
-        fd.resize(n);
+        get_sqrt(a,(n+1)>>1,ret);
+        get_inv(ret,n,fc);
+        ret=fft::multiply_mod(ret,ret,MOD,1);
+        ret.resize(n);
         for(int i=0;i<n;i++) fc[i]=1LL*fc[i]*((MOD+1)/2)%MOD;
-        for(int i=0;i<n;i++) fd[i]=inc(fd[i],a[i]);
-        fd=fft::multiply_mod(fd,fc,MOD);
-        fd.resize(n);return fd;
+        for(int i=0;i<n;i++) ret[i]=inc(ret[i],a[i]);
+        ret=fft::multiply_mod(ret,fc,MOD);
+        ret.resize(n);
     }
-    vector<int> diff(vector<int> &a)
+    void diff(vector<int> &a,int n,vector<int> &ret)
     {
-        vector<int> ret=a;
-        for(int i=1;i<(int)ret.size();i++) ret[i-1]=1LL*ret[i]*i%MOD;
-        if(ret.size()>1) ret.resize((int)ret.size()-1);
-        return ret;
+        ret.resize(n);
+        for(int i=1;i<n;i++) ret[i-1]=1LL*a[i]*i%MOD;
+        ret[n-1]=0;
     }
-    vector<int> intg(vector<int> &a)
+    void intg(vector<int> &a,int n,vector<int> &ret)
     {
-        vector<int> ret=a;
-        int sz=(int)ret.size();
-        ret.resize(sz+1);
-        static vector<int> Inv(sz+1);
-        Inv[1]=1;
-        for(int i=2;i<=sz;i++) Inv[i]=dec(MOD,1LL*Inv[MOD%i]*(MOD/i)%MOD);
-        for(int i=sz;i>=1;i--) ret[i]=1LL*ret[i-1]*Inv[i]%MOD;
+        ret.resize(n); Inv.resize(n);
+        if(n>1) Inv[1]=1;
+        for(int i=2;i<=n-1;i++) Inv[i]=dec(MOD,1LL*Inv[MOD%i]*(MOD/i)%MOD);
+        for(int i=n-1;i>=1;i--) ret[i]=1LL*a[i-1]*Inv[i]%MOD;
         ret[0]=0;
-        return ret;
     } 
-    vector<int> get_ln(vector<int> &a,int n)
+    void get_ln(vector<int> &a,int n,vector<int> &ret)
     {
         assert(a[0]==1);
-        vector<int> tmp=diff(a);
-        vector<int> inf=get_inv(a,n);
-        tmp=fft::multiply_mod(tmp,inf,MOD);
-        tmp=intg(tmp); 
-        tmp.resize(n);
-        return tmp;
+        diff(a,n,fc);
+        get_inv(a,n,fd);
+        fc=fft::multiply_mod(fc,fd,MOD);
+        intg(fc,n,ret); 
+        ret.resize(n);
+        fc.clear(); fd.clear();
     }
-    vector<int> get_exp(vector<int> &a,int n)
+    void get_exp(vector<int> &a,int n,vector<int> &ret)
     {
-        printf("%d\n",n);
         if(n==1)
         {
-            fc.resize(1);
-            fc[0]=1;
-            return fc;
+            ret.resize(1); ret[0]=1;
+            return;
         }
-        fc=get_exp(a,(n+1)>>1);
-        fd=get_ln(fc,(n+1)>>1);
-        for(int i=0;i<(n+1)/2;i++) fd[i]=MOD-fd[i];
-        fd[0]+=1; if(fd[0]>=MOD) fd[0]-=MOD;
-        for(int i=0;i<(n+1)/2;i++) fd[i]=inc(fd[i],a[i]);
-        fd=fft::multiply_mod(fc,fd,MOD);
-        fd.resize(n); fd[0]=1; return fd;
+        get_exp(a,(n+1)>>1,ret); ret.resize(n);
+        get_ln(ret,n,ff);
+        for(int i=0;i<n;i++) ff[i]=dec(MOD,ff[i]);
+        ff[0]+=1; if(ff[0]>=MOD) ff[0]-=MOD;
+        for(int i=0;i<n;i++) ff[i]=inc(ff[i],a[i]);
+        ret=fft::multiply_mod(ret,ff,MOD); ret.resize(n);
+        ff.clear();
     }
     void division(vector<int> &a,vector<int> &b,vector<int> &q,vector<int> &r)
     {
         int n=(int)a.size(),m=(int)b.size();
         if(n<m) {q.resize(1); q[0]=0; r=a; return;}
-        vector<int> tmp=b; reverse(tmp.begin(),tmp.end());
-        tmp=get_inv(tmp,n-m+1);
+        vector<int> tmp=b; reverse(tmp.begin(),tmp.end()); tmp.resize(n-m+1);
+        get_inv(tmp,n-m+1,fc);
         vector<int> rev=a; reverse(rev.begin(),rev.end());
-        q=fft::multiply_mod(tmp,rev,MOD); q.resize(n-m+1);
+        q=fft::multiply_mod(fc,rev,MOD); q.resize(n-m+1);
         reverse(q.begin(),q.end());
         vector<int> t=fft::multiply_mod(b,q,MOD);
         r.resize(m-1);
         for(int i=0;i<m-1;i++) r[i]=dec(a[i],t[i]); 
+    }
+    void build_tree(int k,int l,int r,vector<int> &a)
+    {
+        if(l==r)
+        {
+            segtree[k].resize(2);
+            segtree[k][0]=(MOD-a[l])%MOD; segtree[k][1]=1; 
+            return;
+        }
+        int mid=(l+r)/2;
+        build_tree(k*2,l,mid,a); build_tree(k*2+1,mid+1,r,a);
+        segtree[k]=fft::multiply_mod(segtree[k*2],segtree[k*2+1],MOD);
+    }
+    void me_solve(int k,int l,int r,vector<int> &p,vector<int> &a,vector<int> &ret)
+    {
+        if(l==r)
+        { 
+            ret.resize(1); 
+            int ans=0,base=1;
+            for(int i=0;i<(int)p.size();i++)
+            {
+                ans=(ans+1LL*p[i]*base)%MOD;
+                base=1LL*base*a[l];
+            }
+            ret[0]=ans;
+            return;
+        }
+        int mid=(l+r)/2;
+        vector<int> lp,rp,lret,rret,tmp; lp.clear(); rp.clear(); lret.clear(); rret.clear();
+        division(p,segtree[k*2],tmp,lp); division(p,segtree[k*2+1],tmp,rp);
+        me_solve(k*2,l,mid,lp,a,lret); me_solve(k*2+1,mid+1,r,rp,a,rret);
+        ret.clear();
+        ret.insert(ret.begin(),rret.begin(),rret.end()); ret.insert(ret.begin(),lret.begin(),lret.end());
+    }
+    void multipoint_eval(vector<int> &p,vector<int> &a,vector<int> &ret,bool buildtree=true)
+    {
+        int n=(int)a.size(); 
+        if(buildtree)
+        {
+            segtree.resize(4*n+1);
+            build_tree(1,0,n-1,a);
+        }
+        me_solve(1,0,n-1,p,a,ret);
+    }
+    void li_solve(int k,int l,int r,vector<int> &v,vector<int> &ret)
+    {
+        
+        if(l==r)
+        {
+            ret.resize(1);
+            ret[0]=v[l]; return;
+        }
+        int mid=(l+r)/2;
+        vector<int> lret,rret; lret.clear(); rret.clear(); 
+        li_solve(k*2,l,mid,v,lret); li_solve(k*2+1,mid+1,r,v,rret);
+        lret=fft::multiply_mod(lret,segtree[k*2+1],MOD); rret=fft::multiply_mod(rret,segtree[k*2],MOD);
+        lret.resize(r-l+1); rret.resize(r-l+1); ret.resize(r-l+1);
+        for(int i=0;i<r-l+1;i++) ret[i]=inc(lret[i],rret[i]);
+    }
+    void lagrange_interpolation(vector<int> &x,vector<int> &y,vector<int> &ret)
+    {
+        int n=(int)x.size(); segtree.resize(4*n+1);
+        build_tree(1,0,n-1,x);
+        vector<int> cf=segtree[1]; 
+        diff(cf,n+1,cf); 
+        vector<int> coef;
+        multipoint_eval(cf,x,coef,false);
+        for(int i=0;i<n;i++) coef[i]=1LL*inv(coef[i])*y[i]%MOD;
+        li_solve(1,0,n-1,coef,ret);
     }
 }
 int n,m,k;
@@ -303,10 +368,10 @@ vector<int> f,g,a,b;
 int main()
 {
     scanf("%d",&n);
-    f.resize(n);
-    for(int i=0;i<n;i++) scanf("%d",&f[i]);
-    vector<int> lnf=poly::get_ln(f,6);
-    for(int i=0;i<(int)lnf.size();i++) printf("%d ",lnf[i]);
+    f.resize(n); g.resize(n);
+    for(int i=0;i<n;i++) scanf("%d%d",&f[i],&g[i]);
+    poly::lagrange_interpolation(f,g,a);
+    for(int i=0;i<(int)a.size();i++) printf("%d ",a[i]);
     return 0;
 }
 
