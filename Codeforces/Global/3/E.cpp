@@ -34,7 +34,7 @@ int main()
     }
     for(int i=1;i<=n;i++) 
     {
-        scanf("%d",&t[i].F); sum2+=s[i].F;
+        scanf("%d",&t[i].F); sum2+=t[i].F;
         t[i].S=i;
     }
     if(sum1!=sum2)
