@@ -16,9 +16,9 @@ typedef tree<int,null_type,less<int>,rb_tree_tag,tree_order_statistics_node_upda
 typedef __gnu_pbds::priority_queue<int,greater<int>,pairing_heap_tag> pq;
 typedef bitset<2000> bs;
 int n;
-bs win[MAXN];
+bs win[MAXN],twin[MAXN];
 int a[MAXN][MAXN];
-bs pre[MAXN],tmp;
+bs dpl[MAXN],dpr[MAXN],tdpl[MAXN],tdpr[MAXN];
 string str;
 int main()
 {
@@ -29,24 +29,43 @@ int main()
         for(int j=0;j<i;j++)
         {
             int x=str[j]-'0';
-            if(x) win[i].set(j); else win[j].set(i);
-        }
-    }
-    pre[0].set(0);
-    for(int i=1;i<n;i++)
-    {
-        bs suf; suf.reset(); suf.set(i);
-        if((win[i]&pre[i-1]).count()) pre[i].set(i);
-        for(int j=i-1;j>=0;j--)
-        {
-            if((win[j]&suf).count())
+            if(x) 
             {
-                suf.set(j);
-                if(pre[j].test(j)) pre[i].set(j);
+                win[i].set(j);
+                twin[j].set(i);
+            }
+            else 
+            {
+                win[j].set(i);
+                twin[i].set(j);
             }
         }
     }
-    printf("%d\n",(int)pre[n-1].count());
+    for(int i=0;i<n;i++)
+    {
+        dpl[i].set(i); dpr[i].set(i);
+        tdpl[i].set(i); tdpr[i].set(i);
+    }
+    for(int len=2;len<=n;len++)
+    {
+        for(int i=0;i+len-1<n;i++)
+        {
+            int j=i+len-1;
+            if((dpr[i+1]&tdpl[j]&win[i]).count())
+            {
+                dpl[i].set(j);
+                tdpl[j].set(i);
+            }
+            if((dpr[i]&tdpl[j-1]&win[j]).count())
+            {
+                dpr[i].set(j);
+                tdpr[j].set(i);
+            }
+        }
+    }
+    int ans=0;
+    for(int i=0;i<n;i++) if(dpl[i].test(n-1)&&dpr[0].test(i)) ans++;
+    printf("%d\n",ans);
     return 0;
 }
 
