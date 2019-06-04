@@ -14,42 +14,45 @@ typedef long long ll;
 typedef pair<int,int> P;
 typedef tree<int,null_type,less<int>,rb_tree_tag,tree_order_statistics_node_update> ordered_set;
 typedef __gnu_pbds::priority_queue<int,greater<int>,pairing_heap_tag> pq;
-int n,k,a[MAXN];
-int f[MAXN],g[MAXN];
-int dp[MAXN];
-vector<int> divi[MAXN];
-int fact[MAXN];
+int n;
+int dp[MAXN][20][2];
+int val[20][2],f[20][2];
 void add(int &a,int b) {a+=b; if(a>=MOD) a-=MOD;}
 int main()
 {
     scanf("%d",&n);
-    fact[0]=1;
-    for(int i=1;i<=n;i++) fact[i]=1LL*fact[i-1]*i%MOD;
-    int mx=1;
-    for(int i=2;i<=n;i++)
+    int t=1,cnt=0;
+    while(2*t<=n) {t*=2; cnt++;}
+    dp[1][cnt][0]=1;
+    if(t/2*3<=n) dp[1][cnt-1][1]=1;
+    val[0][0]=1; val[0][1]=3;
+    f[0][0]=n; f[0][1]=n/3;
+    for(int i=1;i<=cnt;i++)
     {
-        f[i]=1;
-        mx=max(mx,f[i]);
-        for(int j=2*i;j<=n;j++)
+        for(int j=0;j<=1;j++)
         {
-            divi[j].push_back(i);
-            f[j]=max(f[j],f[i]+1);
+            val[i][j]=val[i-1][j]*2;
+            f[i][j]=n/val[i][j];
         }
     }
-    for(int i=n;i>=2;i--)
+    for(int i=1;i<n;i++)
     {
-        if(f[i]==mx) add(g[i],1);
-        if(!g[i]) continue;
-        for(auto to:divi[i])
+        for(int j=0;(1<<j)<=n;j++)
         {
-            if(f[to]!=f[i]-1) continue;
-            add(g[to],1LL*g[i]*(i/to-1)%MOD);
+            for(int k=0;k<2;k++)
+            {
+                if(!dp[i][j][k]) continue;
+                if(f[j][k]>=i) add(dp[i+1][j][k],1LL*(f[j][k]-i)*dp[i][j][k]%MOD);
+                if(j>0&&f[j-1][k]>=i) add(dp[i+1][j-1][k],1LL*(f[j-1][k]-f[j][k])*dp[i][j][k]%MOD);
+                if(k>0&&f[j][k-1]>=i) add(dp[i+1][j][k-1],1LL*(f[j][k-1]-f[j][k])*dp[i][j][k]%MOD);
+            }
         }
     }
     int ans=0;
-    for(int i=2;i<=n;i++) if(f[i]==1) add(ans,g[i]);
-    ans=1LL*ans*fact[n-mx]%MOD;
-    printf("%d\n",ans); 
+    for(int j=0;(1<<j)<=n;j++)
+        for(int k=0;k<2;k++)
+            add(ans,dp[n][j][k]);
+    printf("%d\n",ans);
     return 0;
 }
 
