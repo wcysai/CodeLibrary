@@ -15,89 +15,65 @@ typedef long long ll;
 typedef pair<int,int> P;
 typedef tree<int,null_type,less<int>,rb_tree_tag,tree_order_statistics_node_update> ordered_set;
 typedef __gnu_pbds::priority_queue<int,greater<int>,pairing_heap_tag> pq;
-int n,q;
-int st[MAXLOGN][2*MAXN];
+int n,q,cur;
 vector<int> G[MAXN];
-int vs[MAXN*2-1];
-int depth[MAXN*2-1];
-int id[MAXN];
-vector<int> choices;
-void dfs(int v,int p,int d,int &k)
+int dp,dep[MAXN],pa[MAXN],sz[MAXN],wson[MAXN],st[MAXN],tpos[MAXN],top[MAXN],bottom[MAXN];
+void dfs1(int v,int p,int d)
 {
-    id[v]=k;
-    vs[k]=v;
-    depth[k++]=d;
+    dep[v]=d;pa[v]=p;sz[v]=1;
     for(int i=0;i<(int)G[v].size();i++)
     {
-        if(G[v][i]!=p)
-        {
-            dfs(G[v][i],v,d+1,k);
-            vs[k]=v;
-            depth[k++]=d;
-        }
+        int to=G[v][i];
+        if(to==p) continue;
+        dfs1(to,v,d+1);
+        if(sz[to]>sz[wson[v]]) wson[v]=to;
+        sz[v]+=sz[to];
     }
 }
-int getMin(int x, int y)
+void dfs2(int v,int p,int num)
 {
-    return depth[x]<depth[y]?x:y;
+    top[v]=num;
+    bottom[top[v]]=v;
+    if(wson[v]) dfs2(wson[v],v,num);
+    for(int i=0;i<(int)G[v].size();i++)
+    {
+        int to=G[v][i];
+        if(to==p||to==wson[v]) continue;
+        dfs2(to,v,to);
+    }
 }
-
-void rmq_init(int n)
+void init()
 {
-    for(int i=1;i<=n;++i) st[0][i]=i;
-    for(int i=1;1<<i<n;++i)
-        for(int j=1;j+(1<<i)-1<=n;++j)
-            st[i][j]=getMin(st[i-1][j],st[i-1][j+(1<<(i-1))]);
+    memset(wson,0,sizeof(wson));
+    dfs1(1,1,0);
+    dfs2(1,0,1);
 }
-void init(int V)
+int getdis(int v)
 {
-    int k=0;
-    dfs(1,0,0,k);
-    rmq_init(V*2-1);
-}
-int query(int l, int r)
-{
-    int k=31-__builtin_clz(r-l+1);
-    return getMin(st[k][l],st[k][r-(1<<k)+1]);
-}
-int lca(int u,int v)
-{
-    if(u==v) return u;
-    return vs[query(min(id[u],id[v]),max(id[u],id[v]))];
-}
-int getdis()
-{
-    printf("d %d\n",1);
+    printf("d %d\n",v);
     fflush(stdout);
     int x; scanf("%d",&x);
     return x;
-}
-int getlca()
-{
-    int v=choices[0];
-    for(int i=1;i<(int)choices.size();i++) v=lca(v,choices[i]);
-    return v;
-}
-void update(int v)
-{
-    vector<int> tmp; tmp.clear();
-    for(int i=0;i<(int)choices.size();i++) if(lca(choices[i],v)==v) tmp.push_back(choices[i]);
-    choices=tmp;
-}
-void go()
-{
-    int v=getlca();
-    printf("s %d\n",v);
-    fflush(stdout);
-    int u;
-    scanf("%d",&u);
-    update(u);
 }
 void answer(int v)
 {
     printf("! %d\n",v);
     fflush(stdout);
     exit(0);
+}
+void go()
+{
+    int bot=bottom[top[cur]];
+    int d=getdis(bot);
+    assert((dp+dep[bot]-d)%2==0);
+    int depy=(dp+dep[bot]-d)/2;
+    while(dep[cur]!=depy) cur=wson[cur];
+    if(depy==dp) answer(cur);
+    printf("s %d\n",cur);
+    fflush(stdout);
+    int u;
+    scanf("%d",&u);
+    cur=u;
 }
 int main()
 {
@@ -108,13 +84,11 @@ int main()
         scanf("%d%d",&u,&v);
         G[u].push_back(v); G[v].push_back(u);
     }
-    init(n);
-    int d=getdis();
-    if(d==0) answer(1);
-    for(int i=1;i<=n;i++) if(depth[id[i]]==d) choices.push_back(i);
-    while(choices.size()>1) go();
-    assert(choices.size()!=0);
-    answer(choices[0]);
+    init();
+    cur=1;
+    dp=getdis(1);
+    if(dp==0) answer(1);
+    while(true) go();
     return 0;
 }
 
