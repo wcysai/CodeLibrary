@@ -19,55 +19,37 @@ int dp[MAXN][MAXN];
 int rpos[MAXN];
 void add(int &a,int b) {a+=b; if(a>=MOD) a-=MOD;}
 void dec(int &a,int b) {a-=b; if(a<0) a+=MOD;}
-vector<P> v;
+int ans=0,last=0;
+void solve(int x)
+{
+    int cur=n+1;
+    for(int i=n;i>=1;i--) 
+    {
+        while(a[cur-1]-a[i]>=x&&cur-1>i) cur--;
+        rpos[i]=cur;
+    }
+    dp[n+1][0]=1;
+    for(int i=n;i>=1;i--)
+    {
+        dp[i][0]=1;
+        for(int j=1;j<=k;j++)
+        {
+            dp[i][j]=0;
+            add(dp[i][j],dp[i+1][j]);
+            add(dp[i][j],dp[rpos[i]][j-1]);
+        }
+    }
+    add(ans,1LL*x*(dp[1][k]-last+MOD)%MOD);
+    last=dp[1][k];
+}
+
 int main()
 {
     scanf("%d%d",&n,&k);
     for(int i=1;i<=n;i++) scanf("%d",&a[i]);
-    for(int i=1;i<=n;i++) rpos[i]=i+1;
     sort(a+1,a+n+1);
-    dp[n+1][0]=1;
-    for(int i=n;i>=1;i--) 
-    {
-        dp[i][0]=1;
-        for(int j=1;j<=k;j++) 
-        {
-            add(dp[i][j],dp[i+1][j]);
-            add(dp[i][j],dp[i+1][j-1]);
-        }
-    }
-    int cur=0;
-    int ans=0;
-    int last=0;
-    while(true)
-    {
-        int mini=INF;
-        for(int i=1;i<=n;i++)
-        {
-            if(rpos[i]<=n) mini=min(mini,a[rpos[i]]-a[i]);
-        }
-        if(mini==INF) break;
-        cur=mini;
-        v.push_back(P(dp[1][k],cur));
-        printf("%d %d\n",dp[1][k],cur);
-        for(int i=n;i>=1;i--)
-            while(rpos[i]<=n&&a[rpos[i]]-a[i]==cur)rpos[i]++;
-        for(int i=n;i>=1;i--) 
-        {
-            dp[i][0]=1;
-            for(int j=1;j<=k;j++) 
-            {
-                dp[i][j]=0;
-                add(dp[i][j],dp[i+1][j]);
-                add(dp[i][j],dp[rpos[i]][j-1]);
-            }
-        }
-    }
-    for(int i=(int)v.size()-1;i>=0;i--) 
-    {
-        add(ans,1LL*v[i].S*(v[i].F+MOD-last)%MOD);
-        last=v[i].F;
-    }
+    a[n+1]=INF;
+    for(int i=100000/(k-1);i>=1;i--) solve(i);
     printf("%d\n",ans);
     return 0;
 }
