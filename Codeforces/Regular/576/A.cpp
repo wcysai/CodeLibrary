@@ -21,7 +21,7 @@ int main()
         scanf("%d",&x);
         cnt[x]++;
     }
-    if(to>=30||(1<<to)>=n) {puts("0"); return 0;}
+    if(to>=30||(1<<to)>=(int)cnt.size()) {puts("0"); return 0;}
     for(auto p:cnt) v.push_back(p.S);
     int need=(1<<to);
     int ans=n,cur=0;
