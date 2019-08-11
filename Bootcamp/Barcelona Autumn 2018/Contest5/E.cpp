@@ -1,15 +1,9 @@
-/*************************************************************************
-    > File Name: E.cpp
-    > Author: Roundgod
-    > Mail: wcysai@foxmail.com 
-    > Created Time: 2018-10-02 00:49:51
- ************************************************************************/
-
 #pragma GCC optimize(3)
 #include<bits/stdc++.h>
 #define MAXN 100005
 #define INF 1000000000
 #define MOD 1000000009
+#define BASE 1926817
 #define F first
 #define S second
 using namespace std;
@@ -23,20 +17,19 @@ db ans[22];
 int main()
 {
     p[0]=1;
-    for(int i=1;i<=100000;i++) p[i]=19991020LL*p[i-1]%MOD;
+    for(int i=1;i<=100000;i++) p[i]=1LL*BASE*p[i-1]%MOD;
     scanf("%s",str+1);
     n=strlen(str+1);
     for(int i=1;i<=n;i++)
     {
         cnt[i]=cnt[i-1];
         if(str[i]=='?') cnt[i]++;
-        pre[i]=(19991020LL*pre[i-1]+(str[i]=='?'?'z'-'a'+1:str[i]-'a'))%MOD;
+        pre[i]=(1LL*BASE*pre[i-1]+(str[i]=='?'?'z'-'a'+1:str[i]-'a'))%MOD;
     }
-    for(int i=n;i>=1;i--) suf[i]=(19991020LL*suf[i+1]+(str[i]=='?'?'z'-'a'+1:str[i]-'a'))%MOD;
+    for(int i=n;i>=1;i--) suf[i]=(1LL*BASE*suf[i+1]+(str[i]=='?'?'z'-'a'+1:str[i]-'a'))%MOD;
     for(int i=1;i<=n;i++)
     {
         db cur=1.0;int now=1,c=0;
-        //printf("i=%d\n",i);
         while(true)
         {
             int l=now,r=min(i,n-i+1)+1;
@@ -47,10 +40,8 @@ int main()
                 if(lh<0) lh+=MOD;
                 int rh=(suf[i+now]-1LL*suf[i+mid]*p[mid-now])%MOD;
                 if(rh<0) rh+=MOD;
-                //printf("%d %d %d\n",mid,lh,rh);
                 if(cnt[i-mid]==cnt[i-now]&&lh==rh) l=mid; else r=mid;
             }
-            //printf("l=%d\n",l);
             if(i==l||i+l-1==n||(str[i-l]!='?'&&str[i+l]!='?')) {ans[c]+=2*l-1; break;}
             ans[c+1]+=25*(2*l-1);
             cur=cur/26;
