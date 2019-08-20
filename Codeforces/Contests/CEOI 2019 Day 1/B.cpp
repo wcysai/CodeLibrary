@@ -1,6 +1,7 @@
+#pragma GCC optimize(3)
 #include<bits/stdc++.h>
 #define MAXN 100005
-#define INF 1000000000
+#define INF 1000000000000000000LL
 #define MOD 1000000007
 #define F first
 #define S second
@@ -11,7 +12,7 @@ struct edge{ll to,cost;};
 ll n,q,w;
 vector<edge> G[MAXN];
 bool centroid[MAXN];
-map<ll,ll> st[MAXN],ed[MAXN],whichson[MAXN];
+unordered_map<ll,ll> st[MAXN],ed[MAXN],whichson[MAXN];
 ll rk[MAXN],cursz,curv;
 ll sz[MAXN],deep[MAXN],d[MAXN],fa[MAXN];
 ll root,ans,tot;
@@ -82,7 +83,7 @@ struct segtree
     }
     ll query(ll k,ll l,ll r,ll x,ll y)
     {
-        if(l>y||x>r) return LONG_LONG_MIN;
+        if(l>y||x>r) return -INF;
         if(l>=x&&r<=y) return maxi[k];
         pushdown(k);
         ll mid=(l+r)/2;
@@ -91,13 +92,13 @@ struct segtree
     ll get_ans()
     {
         if(ms.size()==0) return 0;
-        else if(ms.size()==1) return *(--ms.end());
+        else if(ms.size()==1) return max(0LL,*(--ms.end()));
         else
         {
             auto it=ms.end();
             ll ret=0;
-            it--; ret+=*it;
-            it--; ret+=*it;
+            it--; if(*it>0) ret+=*it;
+            it--; if(*it>0) ret+=*it;
             return ret;
         }
     }
@@ -129,7 +130,8 @@ void dfs(ll v,ll p,ll c,ll son)
 void build_segtree(ll v)
 {
     seg[v].resize(sz[v]);
-    tot=0;
+    tot=1;
+    st[v][v]=1; ed[v][v]=sz[v];
     curv=v;
     cursz=sz[v];
     for(ll i=0;i<(int)G[v].size();i++)
@@ -176,11 +178,12 @@ ll update_edge(ll id,ll cost)
     ll tmp=u,d=cost-edges[id].cost;
     while(tmp)
     {
+        ll vert=(st[tmp][v]<=st[tmp][u]?u:v);
         save.erase(save.find(seg[tmp].get_ans()));
-        ll affected=whichson[tmp][v];
+        ll affected=whichson[tmp][vert];
         ll val=seg[tmp].query(1,1,sz[tmp],st[tmp][affected],ed[tmp][affected]);
         seg[tmp].ms.erase(seg[tmp].ms.find(val));
-        seg[tmp].update(1,1,sz[tmp],st[tmp][v],ed[tmp][v],d);
+        seg[tmp].update(1,1,sz[tmp],st[tmp][vert],ed[tmp][vert],d);
         val=seg[tmp].query(1,1,sz[tmp],st[tmp][affected],ed[tmp][affected]);
         seg[tmp].ms.insert(val);
         save.insert(seg[tmp].get_ans());
