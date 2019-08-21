@@ -1,5 +1,5 @@
 #include<bits/stdc++.h>
-#define MAXN 1000005
+#define MAXN 2000005
 #define INF 1000000000
 #define MOD 1000000007
 #define F first
@@ -13,7 +13,8 @@ int main()
     scanf("%d%d",&n,&k);
     for(int i=1;i<=n;i++) scanf("%d",&a[i]);
     int s=0,t=0;
-    for(int i=1;i<=n;i++)
+    for(int i=n+1;i<=n+k-1;i++) a[i]=INF;
+    for(int i=1;i<=n+k-1;i++)
     {
         while(s<t&&a[deq[t-1]]>=a[i]) t--;
         deq[t++]=i;
@@ -23,7 +24,7 @@ int main()
             if(deq[s]==i-k+1) s++;
         }
     }
-    for(int i=1;i<=n-k+1;i++)
+    for(int i=1;i<=n;i++)
     {
         if(b[i]!=i)
         {
