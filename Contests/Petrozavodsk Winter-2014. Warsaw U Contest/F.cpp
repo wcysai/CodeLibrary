@@ -17,25 +17,34 @@ struct query
 {
     ll y,id,mult;
 };
-ll bit[2][MAXN];
-ll sum(ll id,ll i)
+struct bit
 {
-    ll s=0;
-    while(i>0)
+    ll s[MAXN];
+    ll sum(int i)
     {
-        s+=bit[id][i];
-        i-=i&-i;
+        ll res=0;
+        while(i>0)
+        {
+            res+=s[i];
+            i-=i&-i;
+        }
+        return res;
     }
-    return s;
-}
-void add(ll id,ll i,ll x)
-{
-    while(i<MAXN)
+    void add(ll i,ll x)
     {
-        bit[id][i]+=x;
-        i+=i&-i;
+        while(i<MAXN)
+        {
+            s[i]+=x;
+            i+=i&-i;
+        }
     }
-}
+    void add(ll l,ll r,ll x)
+    {
+        add(r,x);
+        add(l-1,-x);
+    }
+}X,Y,XY,cons;
+
 vector<update> t[MAXN];
 vector<query> tq[MAXN];
 ll ans[MAXN];
@@ -46,10 +55,10 @@ int main()
     {
         ll a,b,c,d;
         scanf("%lld%lld%lld%lld",&a,&b,&c,&d);
-        t[a+1].push_back((update){d,1});
-        t[a+1].push_back((update){b,-1});
-        t[c+1].push_back((update){d,-1});
-        t[c+1].push_back((update){b,1});
+        t[a+1].push_back((update){b+1,1});
+        t[a+1].push_back((update){d+1,-1});
+        t[c+1].push_back((update){b+1,-1});
+        t[c+1].push_back((update){d+1,1});
     }
     for(ll i=0;i<q;i++)
     {
@@ -63,19 +72,13 @@ int main()
     }
     for(ll i=1;i<=1000000;i++)
     {
-        for(auto upd:t[i])
+        for(auto x:t[i])
         {
-            add(0,offset-upd.y,-upd.mult*(i-1));
-            add(1,offset-upd.y,upd.mult);
-            printf("add0 %lld %lld\n",upd.y,-upd.mult*(i-1));
-            printf("add1 %lld %lld\n",upd.y,upd.mult);
+            ll a=i-1,b=x.y-1,pos=x.y,v=x.mult;
+            XY.add(pos,v); X.add(pos,-b*v);
+            Y.add(pos,-a*v); cons.add(pos,a*b*v);
         }
-        for(auto qu:tq[i])
-        {
-            ans[qu.id]+=qu.mult*qu.y*(sum(0,offset-qu.y)+sum(1,offset-qu.y)*i);
-            printf("query %lld %lld %lld %lld ",qu.mult,qu.y,sum(0,offset-qu.y),sum(1,offset-qu.y));
-            printf("%lld\n",ans[qu.id]);
-        }
+        for(auto qu:tq[i]) ans[qu.id]+=qu.mult*(XY.sum(qu.y)*qu.y*i+Y.sum(qu.y)*qu.y+X.sum(qu.y)*i+cons.sum(qu.y));
     }
     for(ll i=0;i<q;i++) printf("%lld\n",ans[i]);
     return 0;
