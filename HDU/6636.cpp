@@ -1,3 +1,4 @@
+#pragma GCC optimize(3)
 #include<bits/stdc++.h>
 #define MAXN 85
 #define MAXM 205
@@ -8,7 +9,7 @@
 using namespace std;
 typedef long long ll;
 typedef pair<int,int> P;
-int c[MAXN],k[MAXN],color[MAXM],u[MAXM],v[MAXM],w[MAXM];
+int c[MAXN],k[MAXN],color[MAXM],u[MAXM],v[MAXM],w[MAXM],cost[MAXM];
 ll val[MAXM];
 int T,n,m,tot,tot2;
 struct LinearMatroid
@@ -62,6 +63,7 @@ struct GraphMatroid
 {
     vector<int> G[MAXN];
     bool vis[MAXN];
+    bool exist[MAXN];
     void dfs(int v)
     {
         vis[v]=true;
@@ -71,15 +73,19 @@ struct GraphMatroid
     {
         for(int i=1;i<=n+1;i++) G[i].clear();
         memset(vis,false,sizeof(vis));
-        for(auto x:vec)
+        memset(exist,true,sizeof(exist));
+        for(auto x:vec) exist[x]=false;
+        for(int i=1;i<=tot;i++)
         {
-            G[u[x]].push_back(v[x]);
-            G[v[x]].push_back(u[x]);
+            if(exist[i])
+            {
+                G[u[i]].push_back(v[i]);
+                G[v[i]].push_back(u[i]);
+            }
         }
         dfs(1);
-        int cnt=0;
-        for(int i=1;i<=n+1;i++) cnt+=(vis[i]?1:0);
-        return (cnt==n+1);
+        for(int i=1;i<=n+1;i++) if(!vis[i]) return false;
+        return true;
     }
 };
 
@@ -88,7 +94,7 @@ struct PartitionMatroid
     int cnt[125];
     bool test(vector<int> &vec)
     {
-        memset(cnt,0,sizeof(vec));
+        memset(cnt,0,sizeof(cnt));
         for(auto x:vec) cnt[color[x]]++;
         for(int i=1;i<=m;i++) if(cnt[i]>c[i]-k[i]) return false;
         return true;
@@ -99,18 +105,28 @@ struct PartitionMatroid
 template <typename MT1, typename MT2>
 struct MatroidIntersection
 {
-    int n;
+    int n,S,T;
     MatroidIntersection(int _n):n(_n){}
     int pre[MAXM],id[MAXM],d[MAXM];
     bool inque[MAXM],sink[MAXM],has[MAXM];
+    vector<int> g[MAXN];
     queue<int> que;
     void clear_all()
     {
-        memset(inque,false,sizeof(inque));
-        memset(sink,false,sizeof(sink));
-        memset(pre,0,sizeof(pre));
-        for(int i=1;i<=n+1;i++) d[i]=-INF;
+        for(int i=1;i<=n+2;i++)
+        {
+            inque[i]=false;
+            sink[i]=false;
+            pre[i]=0;
+            d[i]=-INF;
+            if(has[i]) cost[i]=w[i]; else cost[i]=-w[i];
+            g[i].clear();
+        }
         while(que.size()) que.pop();
+    }
+    void add_edge(int u,int v)
+    {
+        g[u].push_back(v);
     }
     vector<int> getcur()
     {
@@ -127,50 +143,64 @@ struct MatroidIntersection
             que.push(v);
         }
     }
-    vector<int> run()
+    pair<vector<int>,ll> run()
     {
+        ll ans=0;
         MT1 mt1;  MT2 mt2;
         memset(has,false,sizeof(has));
+        S=n+1; T=n+2;
         while(true)
         {
-            vector<int> cur=getcur();
             clear_all();
             for(int i=1;i<=n;i++)
             {
-                if(has[i]) continue;
-                vector<int> tmp=cur; tmp.push_back(i);
-                if(mt1.test(tmp)) {que.push(i); inque[i]=true; d[i]=w[i];}
+                if(!has[i])
+                {
+                    cost[i]=w[i];
+                    has[i]^=1;
+                    vector<int> tmp=getcur();
+                    if(mt1.test(tmp)) add_edge(S,i);
+                    if(mt2.test(tmp)) add_edge(i,T);
+                    has[i]^=1;
+                }
+                else cost[i]=-w[i];
             }
             for(int i=1;i<=n;i++)
             {
-                if(has[i]) continue;
-                vector<int> tmp=cur; tmp.push_back(i);
-                if(mt2.test(tmp)) sink[i]=true;
-            }
-            while(que.size())
-            {
-                int u=que.front(); que.pop();
-                if(sink[u])
+                if(!has[i])
                 {
-                    if(d[u]>d[n+1])
+                    for(int j=1;j<=n;j++)
                     {
-                        d[n+1]=d[u];
-                        pre[n+1]=u;
+                        if(has[j])
+                        {
+                            has[i]^=1; has[j]^=1;
+                            vector<int> tmp=getcur();
+                            if(mt1.test(tmp)) add_edge(j,i);
+                            if(mt2.test(tmp)) add_edge(i,j);
+                            has[i]^=1; has[j]^=1;
+                        }
                     }
                 }
-                for(int i=1;i<=n;i++)
-                {
-                    if(has[i]==has[u]) continue;
-                    has[u]^=1; has[i]^=1;
-                    vector<int> tmp=getcur();
-                    if(!has[u]) { if(d[u]+w[i]>d[i]&&mt1.test(tmp)) enqueue(i,u); }
-                    else {if(d[u]-w[i]>d[i]&&mt2.test(tmp)) enqueue(i,u);}
-                    has[u]^=1; has[i]^=1;
-                }
             }
-            if(!pre[n+1]) return cur;
-            int last=pre[n+1];
-            while(last)
+            d[S]=0; que.push(S); inque[S]=true;
+            cost[S]=cost[T]=0;
+            int counter=0;
+            while(que.size())
+            {
+                counter++;
+                int u=que.front(); que.pop();
+                for(auto to:g[u])
+                    if(d[to]<d[u]+cost[to])
+                    {
+                        d[to]=d[u]+cost[to];
+                        enqueue(to,u);
+                    }
+                inque[u]=false;
+            }
+            if(!pre[T]) return make_pair(getcur(),ans);
+            ans+=d[T];
+            int last=pre[T];
+            while(last!=S)
             {
                 has[last]^=1;
                 last=pre[last];
@@ -188,6 +218,7 @@ int main()
         tot=0;
         scanf("%d%d",&n,&m);
         int sum=0;
+        ll ans=0;
         for(int i=1;i<=m;i++)
         {
             scanf("%d%d",&c[i],&k[i]);
@@ -197,11 +228,13 @@ int main()
                 int l,r,cost;
                 scanf("%d%d%d",&l,&r,&cost);
                 color[++tot]=i; u[tot]=l; v[tot]=r+1; w[tot]=cost;
+                ans+=cost;
             }
         }
         MatroidIntersection<GraphMatroid,PartitionMatroid> matint(tot);
-        vector<int> res=matint.run();
-        if((int)res.size()!=sum) puts("-1");
+        auto res=matint.run();
+        GraphMatroid gm; PartitionMatroid pm;
+        if((int)res.F.size()!=sum||!gm.test(res.F)||!pm.test(res.F)) puts("-1"); else printf("%lld\n",ans-res.S);
     }
     return 0;
 }
