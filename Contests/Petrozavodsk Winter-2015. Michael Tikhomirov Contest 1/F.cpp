@@ -21,28 +21,22 @@ int pow_mod(int a,int i)
     }
     return s;
 }
-int inv[MAXN],E[MAXN],Esum[MAXN],Esum2[MAXN],E2[MAXN];
+int inv[MAXN],E[MAXN],Esum[MAXN],Esum2[MAXN],E2[MAXN],Eprod[MAXN];
 int main()
 {
     inv[1]=1;
     for(int i=2;i<=1000000;i++) inv[i]=MOD-1LL*(MOD/i)*inv[MOD%i]%MOD;
-    E[0]=E2[0]=Esum[0]=Esum2[0]=1;
+    E[0]=E2[0]=Esum[0]=Esum2[0]=1; Eprod[0]=0;
     scanf("%d",&n);
     for(int i=1;i<=n;i++)
     {
         E[i]=2LL*Esum[i-1]%MOD*inv[i]%MOD;
         Esum[i]=Esum[i-1]; add(Esum[i],E[i]);
-        E2[i]=1LL*E2[i-1]*(i-1)%MOD*(i-1)%MOD;
-        add(E2[i],4LL*E2[i-1]%MOD);
-        printf("%d\n",E2[i]);
-        add(E2[i],2LL*E2[i-1]*(i-1)%MOD);
-        if(i>=2) add(E2[i],2LL*Esum2[i-2]%MOD);
-        add(E2[i],2LL*E2[i-1]%MOD*inv[i-1]%MOD);
-        printf("%d\n",E2[i]);
-        E2[i]=1LL*E2[i]*inv[i]%MOD*inv[i]%MOD;
+        E2[i]=1LL*(2*i+2)*Esum2[i-1]%MOD*inv[i]%MOD*inv[i]%MOD;  add(E2[i],4LL*Eprod[i-1]*inv[i]%MOD*inv[i]%MOD);
         Esum2[i]=Esum2[i-1]; add(Esum2[i],E2[i]);
+        Eprod[i]=Eprod[i-1]; add(Eprod[i],2LL*Esum2[i-1]*inv[i]%MOD); add(Eprod[i],4LL*Eprod[i-1]*inv[i]%MOD);
+        //printf("i=%d E[i]=%d Esum[i]=%d E2[i]=%d Esum2[i]=%d Eprod[i]=%d\n",i,E[i],Esum[i],E2[i],Esum2[i],Eprod[i]);
     }
-    printf("%d %d\n",E[n],E2[n]);
     int ans=E2[n];
     dec(ans,1LL*E[n]*E[n]%MOD);
     printf("%d\n",ans);
