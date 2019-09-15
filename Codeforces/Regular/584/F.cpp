@@ -1,34 +1,52 @@
 #include<bits/stdc++.h>
-#define MAXN 200005
+#define MAXN 2000005
 #define INF 1000000000
 #define MOD 1000000007
 #define F first
 #define S second
 using namespace std;
 int n,m;
-struct edge{int to,cost;};
-vector<edge> G[MAXN];
+vector<int> G[MAXN][10];
 int ans[MAXN];
 int d[MAXN];
-const
-void dijkstra(int s)
+bool vis[MAXN];
+int tot;
+void add_edge_one(int u,int v,int w)
 {
-    priority_queue<P,vector<P>,greater<P> > que;
-    fill(d,d+V,INF);
-    d[s]=0;
-    que.push(P(0,s));
-    while(!que.empty())
+    G[u][w].push_back(v);
+}
+void add_edge(int u,int v,int w)
+{
+    if(w<10) add_edge_one(u,v,w);
+    else
     {
-        P p=que.top(); que.pop();
-        int v=p.second;
-        if(d[v]<p.first) continue;
-        for(int i=0;i<G[v].size();i++)
+        ++tot;
+        add_edge_one(tot,v,w%10);
+        if(w/10) add_edge(u,tot,w/10);
+    }
+}
+void bfs(int s)
+{
+    memset(vis,false,sizeof(vis));
+    d[s]=0; vis[s]=true;
+    queue<int> que;
+    que.push(s);
+    while(que.size())
+    {
+        int p=que.front(); que.pop();
+        vector<int> vec; vec.clear(); vec.push_back(p);
+        while(que.size()&&d[que.front()]==d[p]) vec.push_back(que.front()),que.pop();
+        for(int k=0;k<10;k++)
         {
-            edge e=G[v][i];
-            if(d[e.to]>d[v]+e.cost)
+            for(auto v:vec)
             {
-                d[e.to]=d[v]+e.cost;
-                que.push(P(d[e.to],e.to));
+                for(auto to:G[v][k])
+                {
+                    if(vis[to]) continue;
+                    d[to]=(10LL*d[v]+k)%MOD;
+                    vis[to]=true;
+                    que.push(to);
+                }
             }
         }
     }
@@ -36,11 +54,14 @@ void dijkstra(int s)
 int main()
 {
     scanf("%d%d",&n,&m);
+    tot=n;
     for(int i=1;i<=m;i++)
     {
         int u,v;
         scanf("%d%d",&u,&v);
-        G[u].push_back((edge){v,i}); G[v].push_back((edge){u,i});
+        add_edge(u,v,i); add_edge(v,u,i);
     }
-
+    bfs(1);
+    for(int i=2;i<=n;i++) printf("%d\n",d[i]);
+    return 0;
 }
