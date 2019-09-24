@@ -8,9 +8,9 @@
 using namespace std;
 typedef long long ll;
 typedef pair<int,int> P;
-int n,m,q,deg[MAXN];
+int n,m,q,indeg[MAXN],outdeg[MAXN];
 vector<int> G[MAXN];
-bool isbig[MAXN];
+ll ans=0;
 int main()
 {
     scanf("%d%d",&n,&m);
@@ -18,49 +18,27 @@ int main()
     {
         int u,v;
         scanf("%d%d",&u,&v);
-        G[u].push_back(v); G[v].push_back(u);
-        deg[u]++; deg[v]++;
-        if(u>v) res[u]++,ser[v]++; else res[v]++,ser[u]++;
+        if(u>v) swap(u,v);
+        G[u].push_back(v); indeg[u]++; outdeg[v]++;
     }
-    for(int i=1;i<=n;i++)
-        for(auto to:G[i])
-            if(val[i]>val[to]) st[v]+=res[to]; else ed[v]+=ser[to];
-    int blocks=400;
-    for(int i=1;i<=n;i++)
-    {
-        for(auto to:G[i])
-        {
-            if(deg[to]>=blocks)
-            {
-                BG[i].push_back(to);
-                sum[to]+=res[i];
-            }
-        }
-    }
+    for(int i=1;i<=n;i++) ans+=1LL*indeg[i]*outdeg[i];
+    printf("%lld\n",ans);
     scanf("%d",&q);
-    for(int i=1;i<=q;i++)
+    for(int i=0;i<q;i++)
     {
         int v;
         scanf("%d",&v);
-        if(deg[v]<blocks)
+        ans-=1LL*indeg[v]*outdeg[v];
+        for(auto to:G[v])
         {
-            int last=res[v];
-            ans-=1LL*res[v]*(deg[v]-res[v]);
-            ans-=st[v]; ans-=ed[v];
-            for(auto to:G[v])
-            {
-                if(val[to]>val[v])
-                {
-                    ans-=res[v];
-                    res[to]--;
-                }
-            }
-            val[v]=n+i;
-            for(auto to:G[v]) ans+=res[to];
-            for(auto to:BG[v])
-            {
-                sum[to]+=deg[v]-res[v];
-            }
+            ans-=1LL*indeg[to]*outdeg[to];
+            outdeg[to]--; indeg[to]++;
+            ans+=1LL*indeg[to]*outdeg[to];
+            G[to].push_back(v);
         }
+        G[v].clear();
+        outdeg[v]=indeg[v]+outdeg[v]; indeg[v]=0;
+        printf("%lld\n",ans);
     }
+    return 0;
 }
