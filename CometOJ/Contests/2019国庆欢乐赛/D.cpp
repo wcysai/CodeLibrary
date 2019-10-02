@@ -36,7 +36,7 @@ int main()
             {
                 ll least=(rest-1LL*n*t[finished+1])/(sum[finished+2])+1;
                 ll rem=rest-1LL*least*sum[finished+1];
-                if(rem>=0&&least<=n) ans=max(ans,1LL*finished*n+1LL*least*k+1LL*least*(m-finished)+min(n-least,rem/t[finished+1]));
+                if(rem>=0&&least>=0&&least<=n) ans=max(ans,1LL*finished*n+1LL*least*k+1LL*least*(m-finished)+min(n-least,rem/t[finished+1]));
             }
             ll full=rest/(sum[finished+1]);
             if(full>=n)
