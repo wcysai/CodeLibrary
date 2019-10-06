@@ -25,28 +25,27 @@ int get_val(string str)
 bool check(string x)
 {
     int m=x.size();
-    string rx=x; reverse(rx.begin(),rx.end());
+    string rx=x; for(int i=0;i<m;i++) rx[i]=('0'+'1'-rx[i]);
     string ss="";
-    for(int i=0;i<n/m;i++)
+    string tmp=str; for(int i=0;i<n;i++) tmp[i]=('0'+'1'-tmp[i]);
+    for(int i=0;i<(2*n/m);i++)
     {
         if(i&1) ss+=rx;
         else ss+=x;
     }
-    for(int i=0;i<n%m;i++)
+    for(int i=0;i<(2*n)%m;i++)
     {
         if((n/m)&1) ss+=rx[i];
         else ss+=x[i];
     }
-    return ss<=str;
+    return ss<=(str+tmp);
 }
 int get_ans(int x)
 {
-    x=2*n/x;
-    if(x%2==0) return 0;
+    if((2*n/x)%2==0) return 0;
     string t=str.substr(0,x/2);
     int ret=get_val(t);
     if(!check(t)) dec(ret,1);
-    printf("%d %d\n",2*n/x,ret);
     return ret;
 }
 int main()
@@ -62,9 +61,8 @@ int main()
     }
     for(int i=1;i<=2*n;i++)
     {
-        int x=2*n/i;
         add(ans,1LL*i*res[i]%MOD);
-        for(int j=2*i;j<=2*n;j+=i) if(res[j]) dec(ans,1LL*i*res[j]%MOD);
+        for(int j=2*i;j<=2*n;j+=i) if(res[j]) dec(res[j],res[i]);
     }
     printf("%d\n",ans);
     return 0;
