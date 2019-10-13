@@ -3,15 +3,17 @@
 #define MAXE 50000
 #define INF 1000000
 using namespace std;
-struct edge{int to,cap,rev;};
+struct edge{int to,cap,rev,id;};
 int n,m,s,t;
 vector<edge> G[MAXV];
 int level[MAXV];
 int iter[MAXV];
-void add_edge(int from,int to,int cap)
+int u[MAXV],v[MAXV],g[MAXV];
+int f[MAXV],c[MAXV];
+void add_edge(int from,int to,int cap,int id)
 {
-    G[from].push_back((edge){to,cap,(int)G[to].size()});
-    G[to].push_back((edge){from,0,(int)G[from].size()-1});
+    G[from].push_back((edge){to,cap,(int)G[to].size(),id});
+    G[to].push_back((edge){from,0,(int)G[from].size()-1,-1});
 }
 void bfs(int s)
 {
@@ -66,8 +68,59 @@ int max_flow(int s,int t)
           flow+=f;
     }
 }
+bool vis[MAXV];
 int main()
 {
-    scanf
+    scanf("%d%d%d%d",&n,&m,&s,&t);
+    for(int i=0;i<m;i++)
+    {
+        scanf("%d%d%d",&u[i],&v[i],&g[i]);
+        if(!g[i]) add_edge(u[i],v[i],INF,i);
+        else
+        {
+            add_edge(u[i],v[i],1,i);
+            add_edge(v[i],u[i],INF,-1);
+        }
+    }
+    int ans=max_flow(s,t);
+    printf("%d\n",ans);
+    queue<int> que;
+    que.push(s);
+    memset(vis,false,sizeof(vis));
+    vis[s]=true;
+    while(!que.empty())
+    {
+        int v=que.front();
+        que.pop();
+        for(auto e:G[v])
+        {
+            if(!vis[e.to]&&e.cap>0)
+            {
+                vis[e.to]=true;
+                que.push(e.to);
+            }
+        }
+    }
+    for(int i=1;i<=n;i++)
+    {
+        if(!vis[i]) continue;
+        for(auto e:G[i])
+        {
+            if(e.id<0) continue;
+            if(!vis[e.to])
+            {
+                assert(e.cap==0);
+                c[e.id]=1;
+            }
+        }
+    }
+    for(int i=1;i<=n;i++) G[i].clear();
+    for(int i=0;i<m;i++)
+    {
+        if(g[i])
+        {
+            memset(vis,false,sizeof(vis));
+        }
+    }
     return 0;
 }
