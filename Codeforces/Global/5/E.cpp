@@ -1,23 +1,21 @@
 #include<bits/stdc++.h>
-#define MAXN 1000005
-#define INF 1000000000
-#define MOD 1000000007
-#define F first
-#define S second
+#define MAXN 100005
 using namespace std;
 typedef long long ll;
 typedef pair<int,int> P;
-int n;
+set<int> s;
 int main()
 {
-    scanf("%d",&n);
-    if(n>=15)
+    s.insert(1); s.insert(2);
+    s.insert(4); s.insert(5);
+    int x=4,y=5;
+    while(x<=1000000&&y<=1000000)
     {
-        puts("0");
-        return 0;
+        int xx=x+1+y; int yy=x+1+x;
+        s.insert(xx); s.insert(yy);
+        x=xx; y=yy;
     }
-    int t=1;
-    while(2*t-1<=n) t=t*2;
-    int x=n-t+1;
-    if(x==0||x>t/2) puts("0"); else puts("1");
+    int n;
+    scanf("%d",&n);
+    if(s.find(n)!=s.end()) puts("1"); else puts("0");
 }
