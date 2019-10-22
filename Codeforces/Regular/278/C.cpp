@@ -64,6 +64,11 @@ int main()
         puts("YES\n1\n2\n");
         return 0;
     }
+    else if(n==4)
+    {
+        puts("YES\n1\n3\n2\n4\n");
+        return 0;
+    }
     else
     {
         bool f=true;
