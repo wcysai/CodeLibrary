@@ -38,7 +38,7 @@ int getphi(int n)
 }
 int solve(int l,int r,int m)
 {
-    if(m==1||l>r||a[l]==1) return 1;
+    if(m==1||l>r||w[l]==1) return 1;
     return pow_mod(f(w[l],m),solve(l+1,r,getphi(m)),m);
 }
 int main()
