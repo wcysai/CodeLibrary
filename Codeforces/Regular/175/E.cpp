@@ -48,9 +48,11 @@ int main()
             add(dp[n][i][0],dp[n][i][j]);
         dp[n][i][0]=1LL*dp[n][i][0]*fact[n-i]%MOD;
     }
-    for(int i=n;i>=0;i--)
-        for(int j=i+1;j<=n;j++)
-            dec(dp[n][i][0],1LL*dp[n][j][0]*comb[j][i]%MOD);
+    for(int j=k+1;j<=n;j++)
+    {
+        if((j-k)&1) dec(dp[n][k][0],1LL*dp[n][j][0]*comb[j][k]%MOD);
+        else add(dp[n][k][0],1LL*dp[n][j][0]*comb[j][k]%MOD);
+    }
     printf("%d\n",dp[n][k][0]);
     return 0;
 }
