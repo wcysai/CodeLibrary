@@ -9,7 +9,7 @@ using namespace std;
 int n;
 double p[MAXN],q[MAXN];
 double ans;
-const int MAGIC=100000;
+const int MAGIC=300000;
 double prob;
 int main()
 {
