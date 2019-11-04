@@ -14,7 +14,7 @@ P merge(P p,P q)
     if(p.F==-1.0) return q;
     if(q.F==-1.0) return p;
     double a=p.F,b=p.S,c=q.F,d=q.S;
-    return P(a*c/(1-b+b*c),d/(1-b+b*d));
+    return P(a*c/(1-b+b*c),d+(1-d)*b*c/(1-b+b*c));
 }
 struct segtree
 {
