@@ -6,6 +6,7 @@
 #define S second
 using namespace std;
 typedef long long ll;
+typedef __int128 lll;
 struct frac
 {
     ll x,y;
@@ -16,13 +17,24 @@ struct frac
     }
 }st[MAXN],L,R,M;
 
+int T;
 ll n;
 bool inR(ll x,ll y) {return x*y<=n;}
 double slope(ll x) {return (double)n/x/x;}
 
-ll solve(ll n)
+inline void write(lll x){
+    if(x>=10)write(x/10);
+    putchar(x%10+'0');
+}
+
+inline void writeln(const lll &x){
+    write(x);
+    putchar('\n');
+}
+
+lll solve(ll n)
 {
-    ll ret=0;
+    lll ret=0;
     int t=0,rt=cbrt(n);
     st[++t]=frac(1,0);
     st[++t]=frac(1,1);
@@ -49,7 +61,11 @@ ll solve(ll n)
 }
 int main()
 {
-    scanf("%lld",&n);
-    printf("%lld\n",solve(n));
+    scanf("%d",&T);
+    while(T--)
+    {
+        scanf("%lld",&n);
+        writeln(solve(n));
+    }
     return 0;
 }
