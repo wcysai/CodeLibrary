@@ -1,7 +1,7 @@
 #pragma GCC optimize(3)
 #include<bits/stdc++.h>
 #define MAXN 150005
-#define MAXM 805
+#define MAXM 3005
 #define INF 1000000000000000000LL
 #define MOD 998244353
 #define F first
@@ -13,12 +13,13 @@ int n,q,tot,t;
 vector<int> G[MAXN];
 int deg[MAXN],st[MAXN],ed[MAXN],fa[MAXN],sz[MAXN];
 int bigid[MAXN];
-int save[MAXN][MAXM];
 int blockadd[MAXM];
+bool used[MAXM];
+int dp[MAXN];
 int inv,addall;
 vector<int> bigdeg;
 vector<int> tmp;
-const int threshold=200;
+const int threshold=50;
 void add(int &a,int b) {a+=b; if(a>=MOD) a-=MOD; if(a<0) a+=MOD;}
 void dec(int &a,int b) {a-=b; if(a>=MOD) a-=MOD; if(a<0) a+=MOD;}
 int pow_mod(int a,int i)
@@ -48,6 +49,7 @@ void dfs(int v,int p)
     for(auto to:G[v])
     {
         if(to==p) continue;
+        if(deg[v]>=threshold) dp[to]=to; else dp[to]=dp[v];
         dfs(to,v);
     }
     ed[v]=t;
@@ -116,12 +118,6 @@ int main()
         {
             bigid[i]=++tot;
             bigdeg.push_back(i);
-            for(auto to:G[i])
-            {
-                dfs_sz(to,i);
-                for(auto v:tmp) save[v][tot]=sz[to];
-                tmp.clear();
-            }
         }
     }
     dfs_sz(1,0);
@@ -136,21 +132,18 @@ int main()
         {
             scanf("%d",&d);
             add(addall,1LL*n*d%MOD);
+            int toadd=1LL*(n-sz[v])*d%MOD;
+            dec(addall,toadd);
+            seg.update(1,1,n,st[v],ed[v],toadd);
             if(deg[v]<threshold)
             {
                 for(auto to:G[v])
                 {
                     if(to!=fa[v])
                     {
-                        int toadd=1LL*sz[to]*d%MOD;
+                        toadd=1LL*sz[to]*d%MOD;
                         toadd=(MOD-toadd)%MOD;
                         seg.update(1,1,n,st[to],ed[to],toadd);
-                    }
-                    else
-                    {
-                        int toadd=1LL*(n-sz[v])*d%MOD;
-                        dec(addall,toadd);
-                        seg.update(1,1,n,st[v],ed[v],toadd);
                     }
                 }
             }
@@ -160,9 +153,13 @@ int main()
         {
             int ans=seg.query(1,1,n,st[v]);
             add(ans,addall);
-            for(int j=1;j<=tot;j++)
+            int now=v;
+            while(dp[now]!=0)
             {
-                dec(ans,1LL*blockadd[j]*save[v][j]%MOD);
+                now=dp[now];
+                int id=bigid[fa[now]];
+                dec(ans,1LL*blockadd[id]*sz[now]%MOD);
+                now=fa[now];
             }
             ans=1LL*ans*inv%MOD;
             printf("%d\n",ans);
