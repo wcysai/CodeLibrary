@@ -101,7 +101,7 @@ int main()
     while(r-l>1)
     {
         ll mid=(l+r)/2;
-        if(check(mid)<k) r=mid; else l=mid;
+        if(check(mid)<=k) r=mid; else l=mid;
     }
     int x=check(r);   
     printf("%lld\n",mdst.ans-1LL*x*r);
