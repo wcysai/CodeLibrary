@@ -72,6 +72,9 @@ bool same(string x,string y)
     return x==y;
 }
 vector<string> vv;
+int ccnt[26][105];
+int has[26];
+string t;
 int main()
 {
     scanf("%d",&n);
@@ -84,13 +87,26 @@ int main()
     int mid=(n+1)/2;
     string ss=solve(mid);
     s1=ask(1,n);
-    for(auto x:s1) vv.push_back(x);
-    sort(vv.begin(),vv.end(),cmp);
-    int len=mid;
-    int now=0;
-    for(int i=mid+1;i<=n;i++)
+    for(auto x:s1) 
     {
-        while(now<(int)vv.size()&&!same())
+        int len=(int)x.size();
+        for(int j=0;j<len;j++) ccnt[x[j]-'a'][len]++;
     }
+    for(int i=0;i<n-mid;i++)
+    {
+        if(i+1<=mid) has[ss[i]-'a']++;
+        for(int j=0;j<26;j++)
+        {
+            int c=ccnt[j][1]-(ccnt[j][i+2]-ccnt[j][i+1]);
+            if(c>has[j])
+            {
+                t+=(char)('a'+j);
+                has[j]++;
+                break;
+            }
+        }
+    }
+    reverse(t.begin(),t.end());
+    answer(ss+t);
     return 0;
 }
