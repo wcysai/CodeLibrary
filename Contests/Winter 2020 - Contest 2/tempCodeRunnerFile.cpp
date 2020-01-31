@@ -1,0 +1,1 @@
+freopen("A.in","w",stdout);
