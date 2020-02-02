@@ -54,10 +54,7 @@ int main()
             w[i][j]=INF;
     for(int i=1;i<=n;i++)
         for(int j=1;j<=n;j++)
-        {
             if(xb[i]<=xg[j]&&yb[i]>=yg[j]) w[i][j]=max(xb[i]-xg[j],xg[j]-xb[i])+max(yb[i]-yg[j],yg[j]-yb[i]);
-            printf("%d %d %lld\n",i,j,w[i][j]);
-        }
     printf("%lld\n",km(n,n));
     return 0;
 }
