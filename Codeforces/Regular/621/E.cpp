@@ -1,3 +1,4 @@
+#pragma GCC optimize(3)
 #include<bits/stdc++.h>
 #define MAXN 5005
 #define INF 1000000000
