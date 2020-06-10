@@ -9,61 +9,83 @@ typedef long long ll;
 typedef pair<int,int> P;
 int n;
 char mp[MAXN][MAXN];
-char mp3[3][3]
+char mp3[10][10]=
 {
     "aab",
     "b.b",
-    "baa",
+    "baa"
 };
-char mp4[4][4]
+char mp4[10][10]=
 {
     "aaba",
     "ccba",
     "abcc",
-    "abaa",
+    "abaa"
 };
-char mp5[5][5]
+char mp5[10][10]=
 {
     "aabbc",
     "hii.c",
     "h..jd",
     "g..jd",
-    "gffee",
+    "gffee"
 };
-void construct3(int x)
+char mp6[10][10]=
 {
-    for(int i=0;i<3;i++)
-        for(int j=0;j<3;j++)
-            mp[x+i][x+j]=mp3[i][j];
-}
-void construct4(int x)
+    "aabbcc",
+    "def...",
+    "def...",
+    "...fed",
+    "...fed",
+    "ccbbaa"
+};
+char mp7[10][10]=
 {
-    for(int i=0;i<4;i++)
-        for(int j=0;j<4;j++)
-            mp[x+i][x+j]=mp4[i][j];
-}
-void construct5(int x)
+    "aa.bb.c",
+    ".ii..jc",
+    "h.mm.j.",
+    "h...n.d",
+    ".l..n.d",
+    "gl..kk.",
+    "g.ff.ee"
+};
+vector<int> v;
+void construct()
 {
-    for(int i=0;i<5;i++)
-        for(int j=0;j<5;j++)
-            mp[x+i][x+j]=mp5[i][j];
+    int now=0;
+    for(auto x:v)
+    {
+        for(int i=0;i<x;i++)
+            for(int j=0;j<x;j++)
+            {
+                if(x==3) mp[now+i][now+j]=mp3[i][j];
+                else if(x==4) mp[now+i][now+j]=mp4[i][j];
+                else if(x==5) mp[now+i][now+j]=mp5[i][j];
+                else if(x==6) mp[now+i][now+j]=mp6[i][j];
+                else if(x==7) mp[now+i][now+j]=mp7[i][j];
+            }
+        now+=x;
+    }
 }
 int main()
 {
     scanf("%d",&n);
+    int tmp=n;
     for(int i=0;i<n;i++)
         for(int j=0;j<n;j++)
             mp[i][j]='.';
-    if(n==2) puts("-1"); 
-    else 
+    if(n==2) {puts("-1"); return 0;} 
+    else if(n==3) {v.push_back(3);}
+    else if(n==7) {v.push_back(7);}
+    else if(n==8) {v.push_back(4); v.push_back(4);}
+    else if(n==4) {v.push_back(4);}
+    else
     {
-        int now=0;
-        if(n%3==1) {construct4(0); now+=4;}
-        else if(n%3==2) {construct5(0); now+=5;}
-        while(now<n)
-        {
-            construct3(now); now+=3;
-        }
+        if(n%3==1) {v.push_back(4); n-=4;}
+        else if(n%3==2) {v.push_back(5); n-=5;}
+        if(n%6==3) {v.push_back(4); v.push_back(5); n-=9;}
+        for(int i=0;i<n/6;i++) v.push_back(6);
     }
-    for(int i=0;i<n;i++) printf("%s\n",mp[i]);
+    construct();
+    for(int i=0;i<tmp;i++) printf("%s\n",mp[i]);
 }
