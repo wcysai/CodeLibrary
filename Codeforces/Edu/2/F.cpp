@@ -9,9 +9,9 @@ using namespace std;
 typedef long long ll;
 typedef pair<int,int> P;
 int a,b,n,m,d;
-vector<int> G[MAXN];
+int deg[MAXN];
 P to[MAXN][MAXN];
-int c[MAXN];
+int c[MAXM];
 P e[MAXM];
 void recolor(int u,int c1,int c2)
 {
@@ -22,11 +22,11 @@ void recolor(int u,int c1,int c2)
     to[u][c2]=P(v,id);
     if(to[v][c2].F==0)
     {
-        to[v][c2]=P(v,id);
+        to[v][c2]=P(u,id);
         return;
     }
     recolor(v,c2,c1);
-    to[v][c2]=P(v,id);
+    to[v][c2]=P(u,id);
 }
 void color(int id)
 {
@@ -61,11 +61,10 @@ int main()
     {
         scanf("%d%d",&e[i].F,&e[i].S);
         e[i].S+=a;
-        G[e[i].F].push_back(e[i].S);
-        G[e[i].S].push_back(e[i].F);
+        deg[e[i].F]++; deg[e[i].S]++;
     }
     d=0;
-    for(int i=1;i<=n;i++) d=max(d,(int)G[i].size());
+    for(int i=1;i<=n;i++) d=max(d,deg[i]);
     printf("%d\n",d);
     for(int i=1;i<=m;i++) color(i);
     for(int i=1;i<=m;i++) printf("%d ",c[i]);
