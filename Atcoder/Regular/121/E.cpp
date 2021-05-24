@@ -7,33 +7,19 @@
 using namespace std;
 typedef long long ll;
 typedef pair<int,int> P;
-int n,a[MAXN];
-bool check(int x)
-{
-    int st=1;
-    while(st<=n)
-    {
-        int now=st;
-        while(now<n&&a[now+1]-a[st]<=2*x) now++;
-        if(now==n) return true;
-        if(now<=st+1) return false;
-        if(st!=1&&now==st+2) return false;
-        st=now-1; 
-    }
-    return true;
-}
+int n,a[MAXN],dp[MAXN];
+//intersecting intervals
+//can prove in an optimal setting, no interval have length>=5
 int main()
 {
     scanf("%d",&n);
     for(int i=1;i<=n;i++) scanf("%d",&a[i]);
-    int ans;
-    if(n==2) {printf("%d\n",(a[2]-a[1])/2); return 0;}
-    int l=0,r=INF;
-    while(r-l>1)
+    a[0]=a[1]; a[n+1]=a[n];
+    for(int i=2;i<=n;i++)
     {
-        int mid=(l+r)/2;
-        if(check(mid)) r=mid; else l=mid;
+        dp[i]=a[i+1]-a[0];
+        for(int j=i-2;j>=max(i-5,0);j--) dp[i]=min(dp[i],max(dp[j],a[i+1]-a[j]));
     }
-    printf("%d\n",r);
+    printf("%d\n",dp[n]/2);
     return 0;
 }
