@@ -1,69 +1,176 @@
 #include<bits/stdc++.h>
-#define MAXN 1000005
-#define INF 1000000000
+#define MAXN 500005
 #define MOD 1000000007
 #define F first
 #define S second
 using namespace std;
 typedef long long ll;
 typedef pair<int,int> P;
-int n,q,a,b,x[MAXN];
-multiset<ll> l,r;
+int N,Q,A,B,x[MAXN];
+template< typename T >
+struct SlopeTrick 
+{
+    const T INF = numeric_limits<T>::max()/3;
+    T min_f;
+    priority_queue<T,vector<T>,less<T> > L;
+    priority_queue<T,vector<T>,greater<T> > R;
+    T add_l,add_r;
+    void push_R(const T& a) 
+    {
+        R.push(a-add_r);
+    }
+    T top_R() const 
+    {
+        if (R.empty()) return INF;
+        else return R.top() + add_r;
+    }
+    T pop_R() 
+    {
+        T val=top_R();
+        if(not R.empty()) R.pop();
+        return val;
+    }
+    void push_L(const T& a) 
+    {
+        L.push(a-add_l);
+    }
+    T top_L() const 
+    {
+        if (L.empty()) return -INF;
+        else return L.top()+add_l;
+    }
+    T pop_L() 
+    {
+        T val=top_L();
+        if (not L.empty()) L.pop();
+        return val;
+    }
+    size_t size() 
+    {
+        return L.size()+R.size();
+    }
+
+    SlopeTrick():min_f(0),add_l(0),add_r(0) {}
+
+    struct Query 
+    {
+        T lx, rx, min_f;
+    };
+ 
+    // return min f(x)
+    /*Query query() const {
+        return (Query) { top_L(), top_R(), min_f };
+    }*/
+ 
+    // f(x) += a
+    void add_all(const T& a) 
+    {
+        min_f+=a;
+    }
+ 
+    // add \_
+    // f(x) += max(a - x, 0)
+    void add_a_minus_x(const T& a) 
+    {
+        min_f+=max(T(0),a-top_R());
+        push_R(a);
+        push_L(pop_R());
+    }
+ 
+    // add _/
+    // f(x) += max(x - a, 0)
+    void add_x_minus_a(const T& a) 
+    {
+        min_f+=max(T(0),top_L()-a);
+        push_L(a);
+        push_R(pop_L());
+    }
+ 
+    // add \/
+    // f(x) += abs(x - a)
+    void add_abs(const T& a) 
+    {
+        add_a_minus_x(a);
+        add_x_minus_a(a);
+    }
+ 
+    // \/ -> \_
+    // f_{new} (x) = min f(y) (y <= x)
+    void clear_right() 
+    {
+        while(not R.empty()) R.pop();
+    }
+ 
+    // \/ -> _/
+    // f_{new} (x) = min f(y) (y >= x)
+    void clear_left() 
+    {
+        while(not L.empty()) L.pop();
+    }
+ 
+    // \/ -> \_/
+    // f_{new} (x) = min f(y) (x-b <= y <= x-a)
+    void shift(const T& a, const T& b) 
+    {
+        assert(a<=b);
+        add_l+=a;
+        add_r+=b;
+    }
+ 
+    // \/. -> .\/
+    // f_{new} (x) = f(x - a)
+    void shift(const T& a) 
+    {
+        shift(a,a);
+    }
+ 
+    // L, R を破壊する
+    T get(const T& x) 
+    {
+        T ret=min_f;
+        while(not L.empty()) ret+=max(T(0),pop_L()-x);
+        while(not R.empty()) ret+=max(T(0),x-pop_R());
+        return ret;
+    }
+ 
+    void merge(SlopeTrick& st) 
+    {
+        if(st.size()>size()) 
+        {
+            swap(st.L,L);
+            swap(st.R,R);
+            swap(st.add_l,add_l);
+            swap(st.add_r,add_r);
+            swap(st.min_f,min_f);
+        }
+        while(not st.R.empty()) add_x_minus_a(st.pop_R());
+        while(not st.L.empty()) add_a_minus_x(st.pop_L());
+        min_f+=st.min_f;
+    }
+};
 int main()
 {
-    scanf("%d%d%d%d",&n,&q,&a,&b);
-    ll mini=0,lshift=0,rshift=0;
-    for(int i=0;i<n;i++) scanf("%d",&x[i]);
-    l.insert(x[0]); r.insert(x[0]); 
-    //always bounded by [1,Q]
-    for(int i=1;i<n;i++)
+    ll tmp=0;
+    scanf("%d%d%d%d",&N,&Q,&A,&B);
+    for(int i=1;i<=N;i++) 
     {
-        //lshift right by A rshift right by B
-        lshift+=a; rshift+=b;
-        //add by current function
-        ll lb=*(--l.end())+lshift,rb=*r.begin()+rshift;
-        mini+=max(0LL,max(lb-x[i],x[i]-rb));
-        if(x[i]<lb)
+        scanf("%d",&x[i]);
+        if(x[i]<1LL*A*(i-1)+1)
         {
-            l.insert(x[i]+-lshift); l.insert(x[i]-lshift);
-            auto it=--l.end(); r.insert(*it+lshift-rshift); l.erase(it);
+            tmp+=1LL*A*(i-1)+1-x[i];
+            x[i]=1LL*A*(i-1)+1;
         }
-        else if(x[i]>rb)
-        {
-            r.insert(x[i]-rshift); r.insert(x[i]-rshift);
-            auto it=r.begin(); l.insert(*it+rshift-lshift); r.erase(it);
-        }
-        else
-        {
-            l.insert(x[i]-lshift); r.insert(x[i]-rshift);
-        }
-        while(r.size()&&*(--r.end())+rshift>q-1LL*(n-i-1)*a) 
-        {
-            r.erase(--r.end());
-            if(!r.size()) r.insert(q-1LL*(n-i-1)*a-rshift);
-        }
-        while(l.size()&&*(--l.end())+lshift>q-1LL*(n-i-1)*a) 
-        {
-            l.erase(--l.end());
-            if(!l.size()) l.insert(q-1LL*(n-i-1)*a-lshift);
-        }
-        while(l.size()&&*(l.begin())+lshift<1+1LL*i*a) 
-        {
-            l.erase(l.begin());
-            if(!l.size()) l.insert(1+1LL*i*a-lshift);
-        }
-        while(r.size()&&*(r.begin())+rshift<1+1LL*i*a) 
-        {
-            r.erase(r.begin());
-            if(!r.size()) r.insert(1+1LL*i*a-rshift);
-        }
-        for(auto x:l) printf("%lld ",x+lshift);
-        puts("");
-        for(auto x:r) printf("%lld ",x+rshift);
-        puts("");
-        //s.insert(x[i]+shift); s.insert(x[i]+shift);
-        //s.erase(--s.end());
     }
-    printf("%lld\n",mini);
+    SlopeTrick<ll> st;
+    st.add_abs(x[1]);
+    int cur=0;
+    for(int i=2;i<=N;i++)
+    {
+        st.shift(A,B);
+        st.add_abs(x[i]);
+    }
+    if(st.top_L()>Q) printf("%lld\n",st.get(Q)+tmp);
+    else if(st.top_R()<1) printf("%lld\n",st.get(1)+tmp);
+    else printf("%lld\n",st.min_f+tmp);
     return 0;
 }
