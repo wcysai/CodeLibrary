@@ -1,0 +1,19 @@
+[
+	{
+		"correct_answers":
+		[
+			"1\n0\n-1"
+		],
+		"test": "3\natcodeer\ncodeforces\naaa\n"
+	},
+	{
+		"correct_answers":
+		[
+			"1"
+		],
+		"test": "1\natcoder\n"
+	},
+	{
+		"test": "3\naaaa\naaab\natd\n"
+	}
+]

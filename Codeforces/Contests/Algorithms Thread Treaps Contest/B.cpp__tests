@@ -1,0 +1,16 @@
+[
+	{
+		"correct_answers":
+		[
+			"yes\nyes"
+		],
+		"test": "4 4\naaaa\n1 3 4\n3 1 1\n3 1 1\n2 a 3\n"
+	},
+	{
+		"correct_answers":
+		[
+			"yes"
+		],
+		"test": "5 5\naaaaa\n2 b 3\n1 1 1\n3 5 5\n1 5 5\n1 3 3\n"
+	}
+]

@@ -1,0 +1,16 @@
+[
+	{
+		"correct_answers":
+		[
+			"2\n5\n3"
+		],
+		"test": "5 8\nColor 2 4 2\nAdd 2 2\nQuery 3\nColor 4 5 3\nColor 2 2 3\nAdd 3 3\nQuery 2\nQuery 5\n"
+	},
+	{
+		"correct_answers":
+		[
+			"7\n7\n8"
+		],
+		"test": "2 7\nAdd 1 7\nQuery 1\nAdd 2 4\nQuery 2\nColor 1 1 1\nAdd 1 1\nQuery 2\n"
+	}
+]

@@ -1,0 +1,47 @@
+[
+	{
+		"correct_answers":
+		[
+			"Yes"
+		],
+		"test": "kasaka\n"
+	},
+	{
+		"correct_answers":
+		[
+			"No"
+		],
+		"test": "atcoder\n"
+	},
+	{
+		"correct_answers":
+		[
+			"Yes"
+		],
+		"test": "php\n"
+	},
+	{
+		"correct_answers":
+		[
+			"Yes"
+		],
+		"test": "a\n"
+	},
+	{
+		"correct_answers":
+		[
+			"No"
+		],
+		"test": "ab\n"
+	},
+	{
+		"correct_answers":
+		[
+			"Yes"
+		],
+		"test": "abaa\n"
+	},
+	{
+		"test": "abaaa\n"
+	}
+]

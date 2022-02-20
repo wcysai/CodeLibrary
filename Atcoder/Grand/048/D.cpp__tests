@@ -1,0 +1,30 @@
+[
+	{
+		"correct_answers":
+		[
+			"First\nFirst\nSecond"
+		],
+		"test": "3\n1\n10\n2\n3 2\n3\n2 1 2\n"
+	},
+	{
+		"correct_answers":
+		[
+			"Second"
+		],
+		"test": "1\n4\n1 1 1 1\n"
+	},
+	{
+		"correct_answers":
+		[
+			"Second\nSecond\nFirst"
+		],
+		"test": "3\n4\n1 2 2 1\n4\n2 2 2 2\n4\n3 2 2 2\n"
+	},
+	{
+		"correct_answers":
+		[
+			"First"
+		],
+		"test": "1\n2\n5 4\n"
+	}
+]

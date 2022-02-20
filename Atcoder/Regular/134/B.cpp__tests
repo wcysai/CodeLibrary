@@ -1,0 +1,26 @@
+[
+	{
+		"correct_answers":
+		[
+			"acdb"
+		],
+		"test": "4\ndcab\n"
+	},
+	{
+		"correct_answers":
+		[
+			"ab"
+		],
+		"test": "2\nab\n"
+	},
+	{
+		"correct_answers":
+		[
+			"aaaaaaabbbbcbbbc"
+		],
+		"test": "16\ncabaaabbbabcbaba\n"
+	},
+	{
+		"test": "17\nsnwfpfwipeusiwkzo\n"
+	}
+]
