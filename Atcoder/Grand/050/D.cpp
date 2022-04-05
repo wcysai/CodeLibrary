@@ -1,21 +1,20 @@
 #pragma GCC optimize(3)
 #include<bits/stdc++.h>
-#include<ext/pb_ds/assoc_container.hpp>
-#include<ext/pb_ds/tree_policy.hpp>
-#include<ext/pb_ds/priority_queue.hpp>
-#define MAXN 41
+#define MAXN 45
 #define INF 1000000000
 #define MOD 998244353
 #define F first
 #define S second
 using namespace std;
-using namespace __gnu_pbds;
 typedef long long ll;
 typedef pair<int,int> P;
-typedef tree<int,null_type,less<int>,rb_tree_tag,tree_order_statistics_node_update> ordered_set;
-typedef __gnu_pbds::priority_queue<int,greater<int>,pairing_heap_tag> pq;
-int n,k;
-int f[MAXN][MAXN][MAXN][MAXN][MAXN];
+int n,num;
+int dp[MAXN][MAXN][MAXN][MAXN];
+//dp[i][j][k][l]:
+//i people remaining
+//first people moved j times
+//k last people out of i moved j+1 times
+//you are currently at l
 int inv[MAXN];
 void add(int &a,int b) {a+=b; if(a>=MOD) a-=MOD;}
 void dec(int &a,int b) {a-=b; if(a<0) a+=MOD;}
@@ -30,35 +29,31 @@ int pow_mod(int a,int i)
     }
     return s;
 }
-//f[i][j][k]:
-//probability that at the ith round
-//j people don't have a gift
-//the k-th people who doesn't have a gift stil doesn't get one in this round
-//and j2 people don't have a gift after this round
-//and that people become the k2-th one
-int solve(int i,int j,int k,int j2,int k2)
+int solve(int i,int j,int k,int l)
 {
-    if(dp[i][j][k][j2][k2]!=-1) return dp[i][j][k][j2][k2];
-    int has=n-j;
-    assert(i-1>=has);
-    int prob_hit=1LL*(k-has)/(k-(i-1));
-    prob_fail=1; dec(prob_fail,prob_hit);
-    if(k==1) 
-    {
-        int sum=0;
-        int prob=1;
-        for(int it=2;it<=j;it++) 
-        {
-            prob=1LL*prob*prob_fail%MOD;
-            add(sum,1LL*prob*prob)
-        }
-    }
+    if(n-i>=num) return 0;
+    if(j>=num) return 0;
+    if(dp[i][j][k][l]!=-1) return dp[i][j][k][l];
+    if(k==i) return dp[i][j][k][l]=solve(i,j+1,0,l);
+    int items=num-(n-i),prob=1LL*inv[num-j]*items%MOD;
     int res=0;
-    add(res,1LL*prob_fail*solve(i,j,k-1,))
+    if(l==1)
+    {
+        add(res,prob); add(res,1LL*(MOD+1-prob)*solve(i,j,k+1,i)%MOD);
+        return dp[i][j][k][l]=res;
+    }
+    add(res,1LL*prob*solve(i-1,j,k,l-1)%MOD);
+    add(res,1LL*(MOD+1-prob)*solve(i,j,k+1,l-1)%MOD);
+    return dp[i][j][k][l]=res;
 }
 int main()
 {
-    scanf("%d%d",&n,&k);
+    inv[1]=1;
+    for (int i=2;i<=40;i++)
+        inv[i]=1LL*(MOD-MOD/i)*inv[MOD%i]%MOD;
+    scanf("%d%d",&n,&num);
+    memset(dp,-1,sizeof(dp));
+    for(int i=1;i<=n;i++) printf("%d\n",solve(n,0,0,i));
     return 0;
 }
 

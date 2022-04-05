@@ -1,0 +1,19 @@
+[
+	{
+		"correct_answers":
+		[
+			"aabca"
+		],
+		"test": "5 1\nbacba\n"
+	},
+	{
+		"correct_answers":
+		[
+			"aaaabbaabb"
+		],
+		"test": "10 2\nbbaabbbaab\n"
+	},
+	{
+		"test": ""
+	}
+]

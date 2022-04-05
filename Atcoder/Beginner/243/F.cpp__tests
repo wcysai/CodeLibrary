@@ -1,0 +1,30 @@
+[
+	{
+		"correct_answers":
+		[
+			"221832079"
+		],
+		"test": "2 1 2\n2\n1\n"
+	},
+	{
+		"correct_answers":
+		[
+			"0"
+		],
+		"test": "3 3 2\n1\n1\n1\n"
+	},
+	{
+		"correct_answers":
+		[
+			"335346748"
+		],
+		"test": "3 3 10\n499122176\n499122175\n1\n"
+	},
+	{
+		"correct_answers":
+		[
+			"755239064"
+		],
+		"test": "10 8 15\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n"
+	}
+]

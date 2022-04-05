@@ -7,10 +7,13 @@
 using namespace std;
 typedef long long ll;
 typedef pair<int,int> P;
-int n,k,a[MAXN];
+int v,a,b,c;
 int main()
 {
-	scanf("%d",&n);
-	printf("%d\n",360/__gcd(n,360));
+	scanf("%d%d%d%d",&v,&a,&b,&c);
+	v%=(a+b+c);
+	if(v<a) puts("F");
+	else if(v<a+b) puts("M");
+	else puts("T");
 	return 0;
 }

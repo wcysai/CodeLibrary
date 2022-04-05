@@ -1,5 +1,5 @@
 #include<bits/stdc++.h>
-#define MAXN 100005
+#define MAXN 1000005
 #define INF 1000000000
 #define MOD 1000000007
 #define F first
@@ -7,10 +7,13 @@
 using namespace std;
 typedef long long ll;
 typedef pair<int,int> P;
-int n,k,a[MAXN];
+char str[MAXN];
+int n;
 int main()
 {
-	scanf("%d",&n);
-	printf("%d\n",360/__gcd(n,360));
+	scanf("%s",str+1);
+	n=strlen(str+1);
+	sort(str+1,str+n+1);
+	printf("%s\n",str+1);
 	return 0;
 }

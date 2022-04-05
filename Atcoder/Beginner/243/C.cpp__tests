@@ -1,0 +1,19 @@
+[
+	{
+		"correct_answers":
+		[
+			"Yes"
+		],
+		"test": "3\n2 3\n1 1\n4 1\nRRL\n"
+	},
+	{
+		"correct_answers":
+		[
+			"No"
+		],
+		"test": "2\n1 1\n2 1\nRR\n"
+	},
+	{
+		"test": "10\n1 3\n1 4\n0 0\n0 2\n0 4\n3 1\n2 4\n4 2\n4 4\n3 3\nRLRRRLRLRR\n"
+	}
+]

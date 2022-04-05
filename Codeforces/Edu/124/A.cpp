@@ -7,10 +7,9 @@
 using namespace std;
 typedef long long ll;
 typedef pair<int,int> P;
-int n,k,a[MAXN];
+int t,n,m;
 int main()
 {
-	scanf("%d",&n);
-	printf("%d\n",360/__gcd(n,360));
+	scanf("%d%d",&n,&m);
 	return 0;
 }

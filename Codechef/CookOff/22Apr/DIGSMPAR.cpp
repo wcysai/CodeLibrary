@@ -7,10 +7,27 @@
 using namespace std;
 typedef long long ll;
 typedef pair<int,int> P;
-int n,k,a[MAXN];
+int T,N;
+int calc(int x)
+{
+	int s=0;
+	while(x)
+	{
+		s^=(x&1);
+		x/=10;
+	}
+	return s;
+}
 int main()
 {
-	scanf("%d",&n);
-	printf("%d\n",360/__gcd(n,360));
+	scanf("%d",&T);
+	while(T--)
+	{
+		scanf("%d",&N);
+		int s=calc(N);
+		int x=N+1;
+		while(calc(x)==s) x++;
+		printf("%d\n",x);
+	}
 	return 0;
 }
