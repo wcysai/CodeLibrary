@@ -1,0 +1,30 @@
+[
+	{
+		"correct_answers":
+		[
+			"Yes"
+		],
+		"test": "3\ntanaka taro\ntanaka jiro\nsuzuki hanako\n"
+	},
+	{
+		"correct_answers":
+		[
+			"No"
+		],
+		"test": "3\naaa bbb\nxxx aaa\nbbb yyy\n"
+	},
+	{
+		"correct_answers":
+		[
+			"No"
+		],
+		"test": "2\ntanaka taro\ntanaka taro\n"
+	},
+	{
+		"correct_answers":
+		[
+			"Yes"
+		],
+		"test": "3\ntakahashi chokudai\naoki kensho\nsnu ke\n"
+	}
+]

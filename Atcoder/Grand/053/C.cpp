@@ -8,7 +8,7 @@ using namespace std;
 typedef long long ll;
 typedef pair<int,int> P;
 int n;
-int fact[MAXN],invf[MAXN];
+int ffact[MAXN],invff[MAXN];
 void add(int &a,int b) {a+=b; if(a>=MOD) a-=MOD;}
 void dec(int &a,int b) {a-=b; if(a<0) a+=MOD;}
 int pow_mod(int a,int i)
@@ -22,25 +22,33 @@ int pow_mod(int a,int i)
     }
     return s;
 }
-int comb(int n,int k)
+int solve(int l,int r)
 {
-    if(n<k) return 0;
-    return 1LL*fact[n]*invf[k]%MOD*invf[n-k]%MOD;
+    if(l>r) return 1;
+    if(l<=1) return ffact[r];
+    return 1LL*ffact[r]*invff[l-2]%MOD;
+}
+int solve_inv(int l,int r)
+{
+    if(l>r) return 1;
+    if(l<=1) return invff[r];
+    return 1LL*invff[r]*ffact[l-2]%MOD;
 }
 int main()
 {
-    fact[0]=invf[0]=1;
-    for(int i=1;i<=1000000;i++) fact[i]=1LL*fact[i-1]*i%MOD;
-    invf[1000000]=pow_mod(fact[1000000],MOD-2);
-    for(int i=999999;i>=1;i--) invf[i]=1LL*invf[i+1]*(i+1)%MOD;
+    ffact[0]=invff[0]=ffact[1]=invff[1]=1;
+    for(int i=2;i<=2000000;i++) ffact[i]=1LL*ffact[i-2]*i%MOD;
+    invff[2000000]=pow_mod(ffact[2000000],MOD-2);
+    invff[1999999]=pow_mod(ffact[1999999],MOD-2);
+    for(int i=1999998;i>=2;i--) invff[i]=1LL*invff[i+2]*(i+2)%MOD;
     scanf("%d",&n);
-    int ans=0;
+    int ans=2*n;
     int invn=pow_mod(n,MOD-2);
-    for(int i=n;i<=2*n-1;i++)
+    for(int i=0;i<=n-1;i++)
     {
-        int prob=2LL*comb(i,n)*fact[n]%MOD*fact[n]%MOD*invf[2*n]%MOD;
-        int fst=1LL*invn*(2*n-i)%MOD;
-        add(ans,1LL*prob*(n+fst-1)%MOD);
+        int prob=1LL*solve(i+1,2*n-i-1)*solve_inv(i+2,2*n-i-2)%MOD;
+        prob=1LL*prob*invn%MOD;
+        dec(ans,prob);
     }
     printf("%d\n",ans);
     return 0;
