@@ -1,9 +1,0 @@
-[
-	{
-		"correct_answers":
-		[
-			"RBRBRBR\nRRBRRR\nRBRRBRRBRRBRRBRRBRR"
-		],
-		"test": "3\n7 4 3\n6 5 1\n19 13 6\n"
-	}
-]
