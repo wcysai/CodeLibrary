@@ -10,9 +10,10 @@ typedef long long ll;
 typedef pair<int,int> P;
 ll n,k;
 set<ll> s;
-int go(ll x)
+ll go(ll x)
 {
-    if(s.count(x)) return 0;
+    while(x%10==0) x/=10;
+    ll ans=x;
     for(int i=0;i<2;i++)
     {
         vector<int> v;
@@ -20,18 +21,17 @@ int go(ll x)
         while(tmp) {v.push_back(tmp%10); tmp/=10;}
         ll now=0;
         for(int i=0;i<(int)v.size();i++) now=now*10+v[i];
-        if(now==k) return 1;
         x=now;
+        ans=min(ans,x);
     }
-    s.insert(x);
-    return 0;
+    return ans;
 }
 int main()
 {
     scanf("%lld%lld",&n,&k);
-    if(k%10==0)
+    if(go(k)!=k)
     {
-        if(k<=n) puts("1"); else puts("0");
+        puts("0");
         return 0;
     }
     vector<int> v;
@@ -42,10 +42,10 @@ int main()
     ll ans=0;
     if(k!=now)
     {
-        while(now<=n) {if(go(now)) ans++; now*=10;}
+        while(now<=n) {if(go(now)==k) ans++; now*=10;}
     }
     ll tmp2=k;
-    while(tmp2<=n) {if(go(tmp2)) ans++; tmp2*=10;}
+    while(tmp2<=n) {if(go(tmp2)==k) ans++; tmp2*=10;}
     printf("%lld\n",ans);
     return 0;
 }
