@@ -54,19 +54,16 @@ int main()
             if(a[i]<=b[i]) continue;
             else{
                 c++;
-                int d=a[i]-b[i]+1;
-                int x=a[i]-d;
-                cnt[a[i]]++;
-                for(int j=1,p;j<=x;j=p+1){
-                    int z=x/j;
-                    p=x/z;
-                    int r=p,l=max(d,(a[i]+z)/(z+1));
-                    if(l<=r) {cnt[l]++; cnt[r+1]--; }
-                }
+                cnt[b[i]]++; cnt[a[i]]--;
             }
         }
         vector<int> ans;
-        for(int i=1;i<=n;i++) {cnt[i]+=cnt[i-1]; if(cnt[i]==c) ans.push_back(i);}
+        for(int i=1;i<=n;i++) cnt[i]+=cnt[i-1]; 
+        for(int i=1;i<=n;i++) {
+            bool f=true;
+            for(int j=i;j<=n;j+=i) if(cnt[j]) f=false;
+            if(f) ans.push_back(i);
+        }
         printf("%d\n",(int)ans.size());
         for(auto x:ans) printf("%d ",x);
         puts("");
