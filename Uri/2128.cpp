@@ -115,14 +115,24 @@ struct MatroidIntersection
         memset(has,false,sizeof(has));
         memset(vis,false,sizeof(vis));
         memset(sink,false,sizeof(sink));
+        MT1 allmt1; MT2 allmt2; 
+        allmt1.clear(); allmt2.clear();
+        for(int i=1;i<=n;i++)
+        {
+            if(allmt1.test(u[i],v[i])&&allmt2.test(color[i])) {
+                allmt1.add(u[i],v[i]);
+                allmt2.add(color[i]);
+                has[i]=true;
+            }
+        }
         int cnt=0;
         while(true)
         {
             cur=getcur();
             int cnt=0;
             for(int i=1;i<=n;i++) if(has[i]) id[i]=cnt++;
-            MT1 allmt1; MT2 allmt2; allmt1.clear(); allmt2.clear();
             clear_all();
+            allmt1.clear(); allmt2.clear();
             for(auto x:cur) allmt1.add(u[x],v[x]),allmt2.add(color[x]);
             for(int i=1;i<=n;i++)
             {
