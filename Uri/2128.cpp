@@ -11,36 +11,6 @@ typedef long long ll;
 typedef pair<int,int> P;
 int u[MAXM],v[MAXM],color[MAXM];
 int n,m,k;
-struct LinearMatroid
-{
-    ll basis[62];
-    void clear()
-    {
-        memset(basis,0,sizeof(basis));
-    }
-    void add(ll x)
-    {
-        for(int j=60;j>=0;j--)
-        {
-            if(!(x&(1LL<<j))) continue;
-            if(!basis[j])
-            {
-                basis[j]=x;
-                return;
-            }
-            else x^=basis[j];
-        }
-    }
-    bool test(ll x)
-    {
-        for(int j=60;j>=0;j--)
-        {
-            if(!(x&(1LL<<j))) continue;
-            if(!basis[j]) return true; else x^=basis[j];
-        }
-        return false;
-    }
-};
 struct ColorfulMatroid
 {
     int cnt[205];
@@ -111,12 +81,15 @@ struct MatroidIntersection
     int n;
     MatroidIntersection(int _n):n(_n){}
     int pre[MAXM],id[MAXM];
+    vector<int> cur;
     bool vis[MAXM],sink[MAXM],has[MAXM];
+    bool init1[MAXM];
     queue<int> que;
     void clear_all()
     {
         for(int i=1;i<=n;i++) vis[i]=sink[i]=false,pre[i]=0;
         memset(pre,0,sizeof(pre));
+        for(int i=1;i<=n;i++) init1[i]=false;
         while(que.size()) que.pop();
     }
     vector<int> getcur()
@@ -130,26 +103,27 @@ struct MatroidIntersection
         vis[v]=true; pre[v]=p;
         que.push(v);
     }
+    bool check(int x,int y){
+        MT1 tmp; tmp.clear();
+        for(auto i:cur){
+            if(i!=x) tmp.add(u[i],v[i]);
+        }
+        return tmp.test(u[y],v[y]);
+    }
     vector<int> run()
     {
-        MT1 mt1;  MT2 mt2;
         memset(has,false,sizeof(has));
+        memset(vis,false,sizeof(vis));
+        memset(sink,false,sizeof(sink));
+        int cnt=0;
         while(true)
         {
-            vector<int> cur=getcur();
+            cur=getcur();
             int cnt=0;
             for(int i=1;i<=n;i++) if(has[i]) id[i]=cnt++;
             MT1 allmt1; MT2 allmt2; allmt1.clear(); allmt2.clear();
-            vector<MT1> vmt1(cur.size());
-            for(auto &x:vmt1) x.clear();
             clear_all();
             for(auto x:cur) allmt1.add(u[x],v[x]),allmt2.add(color[x]);
-            for(int i=0;i<(int)cur.size();i++)
-                for(int j=0;j<(int)cur.size();j++)
-                {
-                    if(i==j) continue;
-                    vmt1[i].add(u[cur[j]],v[cur[j]]);
-                }
             for(int i=1;i<=n;i++)
             {
                 if(has[i]) continue;
@@ -171,7 +145,7 @@ struct MatroidIntersection
                     if(has[i]==has[x]) continue;
                     if(has[x])
                     {
-                        if(vmt1[id[x]].test(u[i],v[i])) enqueue(i,x);
+                        if(check(x,i)) enqueue(i,x);
                     }
                     else
                     {
@@ -182,6 +156,8 @@ struct MatroidIntersection
                 }
             }
             if(last==-1) return cur;
+            //++cnt;
+            //printf("cnt=%d\n",cnt);
             while(last)
             {
                 has[last]^=1;
@@ -190,8 +166,6 @@ struct MatroidIntersection
         }
     }
 };
-//Pick Your Own Nim
-//In real cases, Linear Matroid Need Optimization to Pass
 int tot=0;
 int main()
 {
@@ -200,14 +174,7 @@ int main()
     {
         ++tot;
         for(int i=1;i<=m;i++)
-        {
             scanf("%d%d%d",&u[i],&v[i],&color[i]);
-            if(u[i]==v[i])
-            {
-                m--;
-                i--;
-            }
-        }
         printf("Instancia %d\n",tot);
         MatroidIntersection<GraphMatroid,ColorfulMatroid> matint(m);
         vector<int> res=matint.run();
