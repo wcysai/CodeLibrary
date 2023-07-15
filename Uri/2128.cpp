@@ -170,7 +170,7 @@ int tot=0;
 int main()
 {
     //freopen("in.txt","r",stdin);
-    while(scanf("%d%d%d",&n,&m,&k)!=EOF)
+    while(scanf("%d%d%d",&n,&m,&k))
     {
         ++tot;
         for(int i=1;i<=m;i++)

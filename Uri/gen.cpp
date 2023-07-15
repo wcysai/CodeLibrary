@@ -14,6 +14,7 @@ mt19937 wcy(time(NULL));
 int main()
 {
     freopen("in.txt","w",stdout);
+    for(int t=0;t<100;t++){
     n=100; m=10000; k=200;
     printf("%d %d %d\n",n,m,k);
     for(int i=0;i<m;i++)
@@ -21,4 +22,5 @@ int main()
         int u=wcy()%n+1,v=wcy()%n+1,w=wcy()%k+1;
         printf("%d %d %d\n",u,v,w);
     }
-}
+    
+}}
