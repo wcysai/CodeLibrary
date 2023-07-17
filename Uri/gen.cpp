@@ -15,12 +15,12 @@ int main()
 {
     freopen("in.txt","w",stdout);
     for(int t=0;t<100;t++){
-    n=100; m=10000; k=200;
-    printf("%d %d %d\n",n,m,k);
-    for(int i=0;i<m;i++)
-    {
-        int u=wcy()%n+1,v=wcy()%n+1,w=wcy()%k+1;
-        printf("%d %d %d\n",u,v,w);
+        n=100; m=4950; k=100;
+        printf("%d %d %d\n",n,m,k);
+        for(int i=1;i<=100;i++)
+            for(int j=i+1;j<=100;j++){
+                int w=wcy()%k+1;
+                printf("%d %d %d\n",i,j,w);
+            }
     }
-    
-}}
+}
