@@ -1,8 +1,8 @@
 #pragma GCC optimize(3)
 #include<bits/stdc++.h>
 #define MAXN 200005
-#define MAXM 8000005
-#define INF 1000000000
+#define MAXM 20000005
+#define INF (1<<30)
 #define MOD 1000000007
 #define F first
 #define S second
@@ -37,7 +37,7 @@ int get_min(int v){
         }
         else {rt=trie[rt][x^1]; ans+=(1<<i);}
     }
-    return ans^v;
+    return ans;
 }
 int p[MAXN],r[MAXN];
 void init(int n){
@@ -84,10 +84,13 @@ void boruvka(){
         vector<P> upd;
         for(int i=1;i<=t;i++){
             for(auto x:save[i]) insert(a[x].F,-1);
+            P p=P(INF,INF);
             for(auto x:save[i]){
                 int val=get_min(a[x].F);
-                upd.push_back(P(val,x));
+                p=min(p,P(val,x));
             }
+            p.F^=a[p.S].F;
+            upd.push_back(p);
             for(auto x:save[i]) insert(a[x].F,1);
         }
         sort(upd.begin(),upd.end(),greater<P>());
