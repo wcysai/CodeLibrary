@@ -30,24 +30,26 @@ namespace treap
     void pushup(int o)
     {
         if(!o) return;
-        t[o].sz=t[ls].sz+t[rs].sz+1;
-        t[o].sum=t[ls].sum+t[rs].sum+t[o].val;
-        t[o].maxx=max(t[o].val,max(t[ls].maxx,t[rs].maxx));
-        ll res=0,ans=-1;
-        if(t[o].val==t[o].maxx) res=1; else ans=max(ans,t[o].val);
-        if(t[ls].maxx==t[o].maxx) res+=t[ls].maxnum;
-        if(t[rs].maxx==t[o].maxx) res+=t[rs].maxnum;
-        t[o].maxnum=res;
-        if(t[ls].maxx!=t[o].maxx) ans=max(ans,t[ls].maxx);
-        if(t[ls].secx!=t[o].maxx) ans=max(ans,t[ls].secx);
-        if(t[rs].maxx!=t[o].maxx) ans=max(ans,t[rs].maxx);
-        if(t[rs].secx!=t[o].maxx) ans=max(ans,t[rs].secx);
-        t[o].secx=ans;
+        t[o].sz=1; t[o].sum=t[o].maxx=t[o].val;
+        if(ls) {t[o].sz+=t[ls].sz; t[o].sum+=t[ls].sum; t[o].maxx=max(t[o].maxx,t[ls].maxx);}
+        if(rs) {t[o].sz+=t[rs].sz; t[o].sum+=t[rs].sum; t[o].maxx=max(t[o].maxx,t[rs].maxx);}
+        t[o].maxnum=0; t[o].secx=-1;
+        if(t[o].val==t[o].maxx) t[o].maxnum=1; else t[o].secx=t[o].val;
+        if(ls){
+            if(t[ls].maxx==t[o].maxx) t[o].maxnum+=t[ls].maxnum; else t[o].secx=max(t[o].secx,t[ls].maxx);
+            t[o].secx=max(t[o].secx,t[ls].secx);
+        }
+        if(rs){
+            if(t[rs].maxx==t[o].maxx) t[o].maxnum+=t[rs].maxnum; else t[o].secx=max(t[o].secx,t[rs].maxx);
+            t[o].secx=max(t[o].secx,t[rs].secx);
+        }
     }
     void add(int o,ll v)
     {
         if(!o) return;
-        t[o].lazy+=v; t[o].add+=v; t[o].maxx+=v; t[o].secx+=v;
+        if(t[o].lazy!=INT_MAX) t[o].lazy+=v; 
+        t[o].add+=v; t[o].maxx+=v; 
+        if(t[o].secx!=-1) t[o].secx+=v;
         t[o].sum+=t[o].sz*v;
         t[o].val+=v;
     }
@@ -59,11 +61,12 @@ namespace treap
         {
             if(t[o].val==t[o].maxx) t[o].val=v;
             t[o].sum-=t[o].maxnum*(t[o].maxx-v);
-            t[o].maxx=v; t[o].lazy=v;
+            t[o].maxx=v; t[o].lazy=min(t[o].lazy,v);
             return;
         }
         pushdown(o);
         cut_to(ls,v); cut_to(rs,v);
+        t[o].val=min(t[o].val,v);
         pushup(o);
     }
     void pushdown(int o)
@@ -88,14 +91,14 @@ namespace treap
         {
             P p=split(ls,cnt);
             int tl=p.F,tr=p.S;
-            ls=tr; pushup(o);
+            ls=tr; pushup(o); 
             return P(tl,o);
         }
         else
         {
             P p=split(rs,cnt-t[ls].sz-1);
             int tl=p.F,tr=p.S;
-            rs=tl; pushup(o);
+            rs=tl; pushup(o);             
             return P(o,tr);
         }
     }
