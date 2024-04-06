@@ -10,15 +10,9 @@ typedef long long ll;
 typedef pair<int,int> P;
 mt19937 wcy(time(NULL));
 int main(){
-    int n=2000,q=200000;
-    printf("%d %d\n",n,q);
-    for(int i=2;i<=n;i++){
-        printf("%d %d %d\n",wcy()%(i-1)+1,i,wcy()%INF);
-    }
-    for(int i=0;i<q;i++){
-        int s=wcy()%n+1,t=wcy()%n+1,k=wcy()%n+1;
-        printf("%d %d %d\n",s,t,k);
-    }
+    int n=200000,m=500000,s=wcy()%n+1;
+    printf("%d %d %d\n",n,m,s);
+    for(int i=0;i<m;i++) printf("%d %d\n",wcy()%INF+1,wcy()%n+1);
     return 0;
 }
 
